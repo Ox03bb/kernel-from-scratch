@@ -9,6 +9,9 @@ void pit_init(uint32_t frequency){
 
 void pit_set_frequency(uint32_t frequency){
     uint16_t divisor = pit_calculate_divisor(frequency);
+    
+    div = divisor;
+    freq = frequency;
 
     outb(PIT_COMMAND, 0x34); // ch 0, mode 2, binary
 
@@ -32,4 +35,13 @@ uint16_t pit_calculate_divisor(uint32_t frequency)
         divisor = 65535;
 
     return (uint16_t)divisor;
+}
+
+
+uint16_t get_divisor(){
+    return div;
+}
+
+uint32_t get_frequency(){
+    return freq;
 }

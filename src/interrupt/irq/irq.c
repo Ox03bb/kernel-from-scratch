@@ -5,10 +5,15 @@
 
 void irq_handler(uint32_t vector) {
 
-    vga_print("IRQ: ");
-    vga_print_hex(vector);
-    vga_print("\n");
-
+    if (vector == 0){
+        vga_print("Time IRQ \n");
+    }else{
+        vga_print("IRQ: ");
+        vga_print_hex(vector);
+        vga_print("\n");
+    }
+    
     pic_send_eoi((uint8_t)vector);
 
 }
+
