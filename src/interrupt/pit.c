@@ -2,6 +2,9 @@
 #include "utils.h"
 #include <stdint.h>
 
+uint16_t div;
+uint32_t freq;
+
 void pit_init(uint32_t frequency){
     pit_set_frequency(frequency);
 }

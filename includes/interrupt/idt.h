@@ -29,7 +29,6 @@ struct idtr {
 void idt_set_gate(uint8_t vector, uint32_t handler, uint16_t selector, uint8_t type_attr);
 
 void idt_init_descriptor(void);
-static void idt_load(void);
 void idt_init(void);
 
 void idt_clear(void);

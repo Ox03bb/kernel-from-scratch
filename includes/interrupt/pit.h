@@ -31,8 +31,8 @@
 /* Binary mode */
 #define PIT_BINARY 0x00
 
-uint16_t div;
-uint32_t freq;
+extern uint16_t div;
+extern uint32_t freq;
 
 
 void pit_init(uint32_t frequency);
