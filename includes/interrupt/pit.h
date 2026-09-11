@@ -15,10 +15,10 @@
 #define PIT_CHANNEL_2 2
 
 /* Access modes */
-#define PIT_ACCESS_LATCH    0x00
-#define PIT_ACCESS_LOBYTE   0x10
-#define PIT_ACCESS_HIBYTE   0x20
-#define PIT_ACCESS_LOHI     0x30
+#define PIT_ACCESS_LATCH  0x00
+#define PIT_ACCESS_LOBYTE 0x10
+#define PIT_ACCESS_HIBYTE 0x20
+#define PIT_ACCESS_LOHI   0x30
 
 /* Operating modes */
 #define PIT_MODE_0 0x00
@@ -30,10 +30,6 @@
 
 /* Binary mode */
 #define PIT_BINARY 0x00
-
-extern uint16_t div;
-extern uint32_t freq;
-
 
 void pit_init(uint32_t frequency);
 void pit_set_frequency(uint32_t frequency);

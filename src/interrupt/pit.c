@@ -5,14 +5,11 @@
 uint16_t div;
 uint32_t freq;
 
-void pit_init(uint32_t frequency){
-    pit_set_frequency(frequency);
-}
+void pit_init(uint32_t frequency) { pit_set_frequency(frequency); }
 
-
-void pit_set_frequency(uint32_t frequency){
+void pit_set_frequency(uint32_t frequency) {
     uint16_t divisor = pit_calculate_divisor(frequency);
-    
+
     div = divisor;
     freq = frequency;
 
@@ -20,12 +17,9 @@ void pit_set_frequency(uint32_t frequency){
 
     outb(PIT_CHANNEL0, (uint8_t)(divisor & 0xFF));        // Low byte
     outb(PIT_CHANNEL0, (uint8_t)((divisor >> 8) & 0xFF)); // High byte
-
 }
 
-
-uint16_t pit_calculate_divisor(uint32_t frequency)
-{
+uint16_t pit_calculate_divisor(uint32_t frequency) {
     if (frequency == 0)
         return 0;
 
@@ -40,11 +34,6 @@ uint16_t pit_calculate_divisor(uint32_t frequency)
     return (uint16_t)divisor;
 }
 
+uint16_t get_divisor() { return div; }
 
-uint16_t get_divisor(){
-    return div;
-}
-
-uint32_t get_frequency(){
-    return freq;
-}
+uint32_t get_frequency() { return freq; }
