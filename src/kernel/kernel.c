@@ -30,14 +30,14 @@ void kernel_main() {
     vga_log_info("[", "init", "] pit and timer");
     pic_clear_mask(0);
     timer_init(1000); // 1000 Hz
+    
     sti();
 
     for (int i = 0; i < 53; i++) {
         vga_print(".");
         timer_sleep(0.02);
     }
-
-    vga_print_at_end_c("... Ok\n", GREEN);
+    vga_print_at_end_c("... Ok\n", GREEN);  // timer 
 
     for (;;) {
         asm volatile("hlt");
