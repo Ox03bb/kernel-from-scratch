@@ -1,22 +1,4 @@
-; ============================================================
-; IRQ handlers 0-15
-;
-; PIC IRQs:
-;   IRQ 0  -> IDT vector 32
-;   IRQ 1  -> IDT vector 33
-;   ...
-;   IRQ 15 -> IDT vector 47
-;
-; The IDT uses vectors 32-47, but we pass IRQ numbers
-; 0-15 to the C IRQ handler.
-; ============================================================
-
 [BITS 32]
-
-
-; ============================================================
-; Export IRQ handlers and IRQ table
-; ============================================================
 
 global irq0
 global irq1
@@ -37,31 +19,33 @@ global irq15
 
 global irq_table
 
-
 extern irq_handler
 
 
 ; ============================================================
 ; IRQ macro
 ;
-; IRQs do NOT automatically push an error code.
+; Hardware IRQs do NOT automatically push an error code.
 ;
-; We push:
+; We push only the IRQ number ourselves.
 ;
-;   1. dummy error code
-;   2. IRQ number
+; Stack when entering irq_common_stub:
 ;
-; This gives us a predictable stack layout.
+;   [ESP]     = IRQ number
+;   [ESP + 4] = EIP
+;   [ESP + 8] = CS
+;   [ESP + 12] = EFLAGS
 ; ============================================================
 
 %macro IRQ 1
 
 irq%1:
-
+    ; Interrupt gates already clear IF automatically.
+    ; This CLI is therefore optional.
     cli
 
-    push dword 0        ; dummy error code
-    push dword %1       ; IRQ number: 0-15
+    ; Push IRQ number
+    push dword %1
 
     jmp irq_common_stub
 
@@ -69,7 +53,7 @@ irq%1:
 
 
 ; ============================================================
-; IRQ entry points
+; IRQ handlers
 ; ============================================================
 
 IRQ 0
@@ -121,29 +105,44 @@ irq_table:
 
 
 ; ============================================================
-; Common IRQ stub
+; Common IRQ handler
 ; ============================================================
 
 section .text
 
 irq_common_stub:
 
-    ; Save general-purpose registers
+    ; Save all general-purpose registers
     pusha
 
-    ; Pass pointer to interrupt frame
-    push esp
+    ; After PUSHA:
+    ;
+    ; [ESP + 0]  = EDI
+    ; [ESP + 4]  = ESI
+    ; [ESP + 8]  = EBP
+    ; [ESP + 12] = original ESP
+    ; [ESP + 16] = EBX
+    ; [ESP + 20] = EDX
+    ; [ESP + 24] = ECX
+    ; [ESP + 28] = EAX
+    ; [ESP + 32] = IRQ number
+    ; [ESP + 36] = EIP
+    ; [ESP + 40] = CS
+    ; [ESP + 44] = EFLAGS
+
+    ; Pass IRQ number to C
+    push dword [esp + 32]
+
     call irq_handler
+
+    ; Remove argument passed to C
     add esp, 4
 
-    ; Restore general-purpose registers
+    ; Restore registers
     popa
 
-    ; Remove:
-    ;
-    ;   4 bytes = IRQ number
-    ;   4 bytes = dummy error code
-    ;
-    add esp, 8
+    ; Remove IRQ number
+    add esp, 4
 
+    ; Return from interrupt
     iretd
