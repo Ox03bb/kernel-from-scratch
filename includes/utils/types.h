@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdint.h>
+#include "types.h"
 
 #define bool uint8_t
 #define True 1

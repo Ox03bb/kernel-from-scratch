@@ -1,7 +1,7 @@
 #ifndef ISR_H
 #define ISR_H
 
-#include <stdint.h>
+#include "types.h"
 
 char *EXCEPTIONS[] = {
     "Division Error",                 // 00
