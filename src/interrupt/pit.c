@@ -1,6 +1,6 @@
 #include "pit.h"
-#include "utils.h"
 #include "types.h"
+#include "utils.h"
 
 uint16_t div;
 uint32_t freq;

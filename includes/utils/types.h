@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-#define bool uint8_t
-#define True 1
+#define bool  uint8_t
+#define True  1
 #define False 0
 
 #endif
