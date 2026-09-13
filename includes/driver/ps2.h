@@ -5,6 +5,7 @@
 
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_PORT 0x64
+#define PS2_COMMAND_PORT PS2_STATUS_PORT
 
 // control commands
 #define PS2_CC_READ_CONFIG 0x20 // read configuration byte
@@ -26,7 +27,7 @@
 #define PS2_DC_IDENTIFY_DEVICE 0xF2 // identify device
 #define PS2_DC_ENABLE_SCANNING 0xF4 // enable scanning
 
-typedef struct ps2_config {
+typedef struct ps2_config_t {
     uint8_t port1_interrupt : 1; 
     uint8_t port2_interrupt : 1; 
     uint8_t system_flag     : 1; 
@@ -35,7 +36,29 @@ typedef struct ps2_config {
     uint8_t port2_clock     : 1;
     uint8_t translation     : 1;
     uint8_t zero2           : 1;
-};
+} ps2_config_t;
+
+typedef union {
+    uint8_t raw;
+
+    struct {
+        uint8_t output_buffer_full : 1; // Bit 0
+        uint8_t input_buffer_full  : 1; // Bit 1
+        uint8_t system_flag        : 1; // Bit 2
+        uint8_t command_data       : 1; // Bit 3
+        uint8_t unknown            : 1; // Bit 4
+        uint8_t timeout_error      : 1; // Bit 5
+        uint8_t parity_error       : 1; // Bit 6
+        uint8_t zero               : 1; // Bit 7
+    };
+} ps2_status_t;
+
+
+ps2_status_t ps2_status(void);
+
+uint8_t ps2_read(void);
+void ps2_command(uint8_t cmd);
+
 
 // ps2_read();
 // ps2_write();
