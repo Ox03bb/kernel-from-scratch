@@ -55,6 +55,15 @@ typedef union {
 
 
 ps2_status_t ps2_status(void);
+bool ps2_output_buffer_full(void);
+bool ps2_input_buffer_full(void);
+bool ps2_system_flag(void);
+bool ps2_command_data(void);
+bool ps2_timeout_error(void);
+bool ps2_parity_error(void);
+bool ps2_wait_input_clear(void);
+bool ps2_wait_output_full(void);
+
 
 uint8_t ps2_read(void);
 void ps2_command(uint8_t cmd);
