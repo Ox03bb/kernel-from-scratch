@@ -26,14 +26,15 @@
 #define PS2_DC_IDENTIFY_DEVICE 0xF2 // identify device
 #define PS2_DC_ENABLE_SCANNING 0xF4 // enable scanning
 
-struct ps2_config {
-    uint8_t port1_interrupt : 1;
-    uint8_t port2_interrupt : 1;
-    uint8_t system_flag : 1;
-    uint8_t zero1 : 1;
-    uint8_t port1_clock : 1;
-    uint8_t port2_clock : 1;
-    uint8_t _ : 2;
+typedef struct ps2_config {
+    uint8_t port1_interrupt : 1; 
+    uint8_t port2_interrupt : 1; 
+    uint8_t system_flag     : 1; 
+    uint8_t zero1           : 1;
+    uint8_t port1_clock     : 1;
+    uint8_t port2_clock     : 1;
+    uint8_t translation     : 1;
+    uint8_t zero2           : 1;
 };
 
 // ps2_read();
