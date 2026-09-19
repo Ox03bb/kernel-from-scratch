@@ -62,17 +62,21 @@ bool ps2_timeout_error(void);
 bool ps2_parity_error(void);
 bool ps2_wait_input_clear(void);
 bool ps2_wait_output_full(void);
+void ps2_flush_output(void);
 
-uint8_t ps2_read(void);
 void ps2_command(uint8_t cmd);
 
-// ps2_read();
-// ps2_write();
-// ps2_wait_input();
-// ps2_wait_output();
-// ps2_send_device_command();
-// ps2_read_config();
-// ps2_write_config();
-// ps2_status();
+uint8_t ps2_read(void);
+void ps2_write(uint8_t data);
+uint8_t ps2_read_config(void);
+void ps2_write_config(uint8_t config);
+bool ps2_test_controller(void);
+bool ps2_test_port1(void);
+bool ps2_test_port2(void);
+void ps2_disable_port1(void);
+void ps2_enable_port1(void);
+void ps2_disable_port2(void);
+void ps2_enable_port2(void);
+void ps2_init(void);
 
 #endif

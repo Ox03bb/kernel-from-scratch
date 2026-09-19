@@ -2,7 +2,11 @@
 #include "utils.h"
 
 // ---------------------------------------------------------------------
-ps2_status_t ps2_status(void) { return inb(PS2_STATUS_PORT); }
+ps2_status_t ps2_status(void) {
+    ps2_status_t status;
+    status.raw = inb(PS2_STATUS_PORT);
+    return status;
+}
 
 bool ps2_output_buffer_full(void) { return ps2_status().output_buffer_full; }
 
@@ -29,8 +33,101 @@ bool ps2_wait_output_full(void) {
         ;
     return true;
 }
+
+void ps2_flush_output(void) {
+    while (ps2_output_buffer_full()) {
+        (void)ps2_read();
+    }
+}
 // ---------------------------------------------------------------------
 
 void ps2_command(uint8_t cmd) { outb(PS2_COMMAND_PORT, cmd); }
 
 uint8_t ps2_read(void) { return inb(PS2_DATA_PORT); }
+
+void ps2_write(uint8_t data) {
+    ps2_wait_input_clear();
+    outb(PS2_DATA_PORT, data);
+}
+
+uint8_t ps2_read_config(void) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_READ_CONFIG);
+    ps2_wait_output_full();
+    return ps2_read();
+}
+
+void ps2_write_config(uint8_t config) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_WRITE_CONFIG);
+    ps2_wait_input_clear();
+    ps2_write(config);
+}
+
+bool ps2_test_controller(void) {
+    ps2_flush_output();
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_SELF_TEST);
+    ps2_wait_output_full();
+    return ps2_read() == 0x55;
+}
+
+bool ps2_test_port1(void) {
+    ps2_flush_output();
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_TEST_PORT1);
+    ps2_wait_output_full();
+    return ps2_read() == 0x00;
+}
+
+bool ps2_test_port2(void) {
+    ps2_flush_output();
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_TEST_PORT2);
+    ps2_wait_output_full();
+    return ps2_read() == 0x00;
+}
+
+void ps2_disable_port1(void) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_DISABLE_PORT1);
+}
+
+void ps2_enable_port1(void) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_ENABLE_PORT1);
+}
+
+void ps2_disable_port2(void) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_DISABLE_PORT2);
+}
+
+void ps2_enable_port2(void) {
+    ps2_wait_input_clear();
+    ps2_command(PS2_CC_ENABLE_PORT2);
+}
+
+void ps2_init(void) {
+    ps2_flush_output();
+    ps2_disable_port1();
+    ps2_disable_port2();
+
+    if (!ps2_test_controller()) {
+        return;
+    }
+
+    uint8_t config = ps2_read_config();
+    config &= ~(1u << 0);
+    config &= ~(1u << 1);
+    config &= ~(1u << 6);
+    ps2_write_config(config);
+
+    if (ps2_test_port1()) {
+        ps2_enable_port1();
+    }
+
+    if (ps2_test_port2()) {
+        ps2_enable_port2();
+    }
+}
