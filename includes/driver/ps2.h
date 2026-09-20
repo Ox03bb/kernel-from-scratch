@@ -27,15 +27,19 @@
 #define PS2_DC_IDENTIFY_DEVICE  0xF2 // identify device
 #define PS2_DC_ENABLE_SCANNING  0xF4 // enable scanning
 
-typedef struct ps2_config_t {
-    uint8_t port1_interrupt : 1;
-    uint8_t port2_interrupt : 1;
-    uint8_t system_flag : 1;
-    uint8_t zero1 : 1;
-    uint8_t port1_clock : 1;
-    uint8_t port2_clock : 1;
-    uint8_t translation : 1;
-    uint8_t zero2 : 1;
+typedef union ps2_config_t {
+    uint8_t raw;
+
+    struct {
+        uint8_t first_port_irq : 1;
+        uint8_t port2_interrupt : 1;
+        uint8_t system_flag : 1;
+        uint8_t zero1 : 1;
+        uint8_t port1_clock : 1;
+        uint8_t port2_clock : 1;
+        uint8_t translation : 1;
+        uint8_t zero2 : 1;
+    };
 } ps2_config_t;
 
 typedef union {
@@ -69,7 +73,9 @@ void ps2_command(uint8_t cmd);
 uint8_t ps2_read(void);
 void ps2_write(uint8_t data);
 uint8_t ps2_read_config(void);
+ps2_config_t ps2_get_config(void);
 void ps2_write_config(uint8_t config);
+void ps2_set_config(ps2_config_t config);
 bool ps2_test_controller(void);
 bool ps2_test_port1(void);
 bool ps2_test_port2(void);

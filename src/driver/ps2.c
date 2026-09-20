@@ -57,11 +57,21 @@ uint8_t ps2_read_config(void) {
     return ps2_read();
 }
 
+ps2_config_t ps2_get_config(void) {
+    ps2_config_t config;
+    config.raw = ps2_read_config();
+    return config;
+}
+
 void ps2_write_config(uint8_t config) {
     ps2_wait_input_clear();
     ps2_command(PS2_CC_WRITE_CONFIG);
     ps2_wait_input_clear();
     ps2_write(config);
+}
+
+void ps2_set_config(ps2_config_t config) {
+    ps2_write_config(config.raw);
 }
 
 bool ps2_test_controller(void) {
