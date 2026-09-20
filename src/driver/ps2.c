@@ -70,9 +70,7 @@ void ps2_write_config(uint8_t config) {
     ps2_write(config);
 }
 
-void ps2_set_config(ps2_config_t config) {
-    ps2_write_config(config.raw);
-}
+void ps2_set_config(ps2_config_t config) { ps2_write_config(config.raw); }
 
 bool ps2_test_controller(void) {
     ps2_flush_output();

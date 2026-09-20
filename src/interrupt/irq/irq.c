@@ -1,7 +1,7 @@
 #include "irq.h"
+#include "keyboard.h"
 #include "pic.h"
 #include "timer.h"
-#include "keyboard.h"
 #include "vga.h"
 #include "vga_lib.h"
 
