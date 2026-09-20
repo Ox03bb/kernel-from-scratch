@@ -140,8 +140,7 @@ void ps2_init(void) {
     }
 }
 
-uint8_t keyboard_get_scan_code_set(void)
-{
+uint8_t keyboard_get_scan_code_set(void) {
     uint8_t response;
 
     ps2_write(0xF0); // Command to get the current scan-code set.

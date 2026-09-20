@@ -127,8 +127,7 @@ char *formatter(const char *format, ...) {
     return result;
 }
 
-char *vformatter(const char *format, va_list args)
-{
+char *vformatter(const char *format, va_list args) {
     buffer[0] = '\0';
 
     while (*format) {

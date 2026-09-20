@@ -17,6 +17,8 @@
 #include "stdio.h"
 #include "utils.h"
 
+#include "string.h"
+
 #define TIMER_FREQ 1000 // 1000 Hz
 
 void KERNEL_INIT(const char *name, void (*init_function)(void)) {
@@ -51,18 +53,15 @@ void kernel_main() {
     KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
 
     KERNEL_INIT("PS/2 controller", ps2_init);
-
-    if (ps2_output_buffer_full()) {
-        uint8_t data = ps2_read();
-        printf("SCAN: %x\n", data);
-    }
-
-    printf("====================================\n");
     KERNEL_INIT("Keyboard Driver", init_keyboard);
+
+    uint8_t scan_code_set = keyboard_get_scan_code_set();
+
+    printf("Keyboard Scan Code Set: %h\n", scan_code_set);
     while (1) {
         if (ps2_output_buffer_full()) {
             uint8_t data = ps2_read();
-            printf("SCAN: %d\n", data);
+            printf("SCAN: %h\n", data);
         }
     }
 

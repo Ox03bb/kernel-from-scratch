@@ -89,5 +89,4 @@ void ps2_init(void);
 
 uint8_t keyboard_get_scan_code_set(void);
 
-
 #endif

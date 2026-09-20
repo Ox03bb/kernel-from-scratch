@@ -81,5 +81,5 @@ void keyboard_irq_handler(void) {
 
     uint8_t data = ps2_read();
 
-    printf("SCAN: %d\n", data);
+    printf("SCAN: %h\n", data);
 }

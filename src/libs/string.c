@@ -37,8 +37,7 @@ char *int2str(int num) {
     return p;
 }
 
-char *uint2str(uint32_t number, uint8_t base, bool uppercase)
-{
+char *uint2str(uint32_t number, uint8_t base, bool uppercase) {
     static char buffer[33];
 
     const char *digits_lower = "0123456789abcdef";
