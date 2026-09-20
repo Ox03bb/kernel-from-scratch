@@ -37,6 +37,36 @@ char *int2str(int num) {
     return p;
 }
 
+char *uint2str(uint32_t number, uint8_t base, bool uppercase)
+{
+    static char buffer[33];
+
+    const char *digits_lower = "0123456789abcdef";
+    const char *digits_upper = "0123456789ABCDEF";
+    const char *digits = uppercase ? digits_upper : digits_lower;
+
+    if (base < 2 || base > 16) {
+        buffer[0] = '\0';
+        return buffer;
+    }
+
+    char *ptr = &buffer[32];
+    *ptr = '\0';
+
+    if (number == 0) {
+        *--ptr = '0';
+        return ptr;
+    }
+
+    while (number > 0) {
+        uint32_t remainder = number % base;
+        *--ptr = digits[remainder];
+        number /= base;
+    }
+
+    return ptr;
+}
+
 void strcpy(char *dest, char *src) {
     while (*src) {
         *dest++ = *src++;

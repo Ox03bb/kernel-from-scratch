@@ -11,6 +11,7 @@ void strcat(char *dest, const char *src);
 int strcmp(const char *str1, const char *str2);
 
 char *int2str(int num); // convert integer to string
+char *uint2str(uint32_t number, uint8_t base, bool uppercase);
 
 char *strchr(const char *str, int c); // find first occurrence of character c in string str
 

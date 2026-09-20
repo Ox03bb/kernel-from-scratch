@@ -127,10 +127,12 @@ char *formatter(const char *format, ...) {
     return result;
 }
 
-char *vformatter(const char *format, va_list args) {
+char *vformatter(const char *format, va_list args)
+{
     buffer[0] = '\0';
 
     while (*format) {
+
         if (*format != '%') {
             char temp[2] = {*format, '\0'};
             strcat(buffer, temp);
@@ -142,6 +144,7 @@ char *vformatter(const char *format, va_list args) {
         format++;
 
         switch (*format) {
+
         case 's': {
             const char *str = va_arg(args, const char *);
             strcat(buffer, str);
@@ -151,6 +154,24 @@ char *vformatter(const char *format, va_list args) {
         case 'd': {
             int number = va_arg(args, int);
             strcat(buffer, int2str(number));
+            break;
+        }
+
+        case 'x': {
+            uint32_t number = va_arg(args, uint32_t);
+            strcat(buffer, uint2str(number, 16, false));
+            break;
+        }
+
+        case 'h': {
+            uint32_t number = va_arg(args, uint32_t);
+            strcat(buffer, uint2str(number, 16, true));
+            break;
+        }
+
+        case 'b': {
+            uint32_t number = va_arg(args, uint32_t);
+            strcat(buffer, uint2str(number, 2, false));
             break;
         }
 
