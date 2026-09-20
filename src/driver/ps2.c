@@ -139,3 +139,26 @@ void ps2_init(void) {
         ps2_enable_port2();
     }
 }
+
+uint8_t keyboard_get_scan_code_set(void)
+{
+    uint8_t response;
+
+    ps2_write(0xF0); // Command to get the current scan-code set.
+
+    response = ps2_read();
+
+    if (response != 0xFA) {
+        return 0;
+    }
+
+    ps2_write(0x00); // Request to get the current scan-code set.
+
+    response = ps2_read();
+
+    if (response != 0xFA) {
+        return 0;
+    }
+
+    return ps2_read();
+}

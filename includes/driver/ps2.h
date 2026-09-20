@@ -87,4 +87,7 @@ void ps2_disable_port2(void);
 void ps2_enable_port2(void);
 void ps2_init(void);
 
+uint8_t keyboard_get_scan_code_set(void);
+
+
 #endif
