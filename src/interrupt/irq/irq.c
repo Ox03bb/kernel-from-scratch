@@ -1,6 +1,7 @@
 #include "irq.h"
 #include "pic.h"
 #include "timer.h"
+#include "keyboard.h"
 #include "vga.h"
 #include "vga_lib.h"
 
@@ -9,6 +10,11 @@ void irq_handler(uint32_t vector) {
     switch (vector) {
     case 0:
         timer_irq_handler();
+        pic_send_eoi((uint8_t)vector);
+        break;
+
+    case 1:
+        keyboard_irq_handler();
         pic_send_eoi((uint8_t)vector);
         break;
 

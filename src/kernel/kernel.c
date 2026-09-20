@@ -8,6 +8,8 @@
 #include "timer.h"
 
 #include "vga.h"
+#include "keyboard.h"
+
 #include "vga_lib.h"
 
 #include "panic.h"
@@ -49,6 +51,23 @@ void kernel_main() {
     KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
 
     KERNEL_INIT("PS/2 controller", ps2_init);
+
+    if (ps2_output_buffer_full()) {
+    uint8_t data = ps2_read();
+    printf("SCAN: %x\n", data);
+    }
+
+    printf("====================================\n");
+    KERNEL_INIT("Keyboard Driver", init_keyboard);
+    while (1){
+        if (ps2_output_buffer_full()) {
+        uint8_t data = ps2_read();
+        printf("SCAN: %d\n", data);
+        }
+    }
+    
+   
+
 
     for (;;) {
         asm volatile("hlt");

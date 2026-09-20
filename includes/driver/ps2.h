@@ -26,6 +26,8 @@
 #define PS2_DC_DISABLE_SCANNING 0xF5 // disable scanning
 #define PS2_DC_IDENTIFY_DEVICE  0xF2 // identify device
 #define PS2_DC_ENABLE_SCANNING  0xF4 // enable scanning
+#define PS2_DC_SELECT_SET       0xF0 // select scancode set
+#define PS2_DC_SET_LED_STATE    0xED // set LED state
 
 typedef union ps2_config_t {
     uint8_t raw;
