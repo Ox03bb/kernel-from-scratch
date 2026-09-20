@@ -54,6 +54,8 @@ void vga_init(void);
 
 void vga_clear(void);
 
+void vga_scroll_up(void);
+
 void vga_print_char(char c);
 
 void vga_print(const char *str);
