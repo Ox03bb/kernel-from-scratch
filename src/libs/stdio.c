@@ -96,7 +96,7 @@ void printf(const char *format, ...) {
 
     va_end(args);
 
-    vga_print(result);
+    print(result);
 }
 
 void snprintf(char *buffer, size_t buffer_size, const char *format, ...) {

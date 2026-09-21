@@ -21,15 +21,105 @@ void vga_init(void) {
     vga_cursor_enable();
 }
 
-// Print
 
-void vga_print_char(char c) {
+// helper functions 
 
-    vga_buf[cursor_position] = (current_color << 8 | c);
+void vga_cursor_carriage_return(void)
+{
+    uint16_t column = cursor_position % VGA_WIDTH;
 
-    vga_set_cursor_position((cursor_position + 1));
+    cursor_position -= column;
+
+    vga_set_cursor_position(cursor_position);
 }
 
+
+void vga_cursor_newline(void)
+{
+    uint16_t row = cursor_position / VGA_WIDTH;
+
+    row++;
+
+    if (row >= VGA_HEIGHT) {
+        vga_scroll_up();
+        row = VGA_HEIGHT - 1;
+    }
+
+    cursor_position = row * VGA_WIDTH;
+
+    vga_set_cursor_position(cursor_position);
+}
+
+
+void vga_cursor_tab(void)
+{
+    uint16_t column = cursor_position % VGA_WIDTH;
+
+    uint16_t spaces =
+        VGA_TAB_WIDTH - (column % VGA_TAB_WIDTH);
+
+    for (uint16_t i = 0; i < spaces; i++) {
+
+        if (cursor_position >= VGA_WIDTH * VGA_HEIGHT) {
+            vga_scroll_up();
+
+            cursor_position =
+                (VGA_HEIGHT - 1) * VGA_WIDTH;
+        }
+
+        vga_buf[cursor_position] =
+            ((uint16_t)current_color << 8) | ' ';
+
+        cursor_position++;
+    }
+
+    vga_set_cursor_position(cursor_position);
+}
+
+
+void vga_cursor_backspace(void)
+{
+    if (cursor_position == 0)
+        return;
+
+    cursor_position--;
+
+    vga_buf[cursor_position] =
+        ((uint16_t)current_color << 8) | ' ';
+
+    vga_set_cursor_position(cursor_position);
+}
+
+// Print
+
+void vga_print_char(char c)
+{
+    switch (c) {
+
+    case '\n':
+        vga_cursor_newline();
+        break;
+
+    case '\r':
+        vga_cursor_carriage_return();
+        break;
+
+    case '\t':
+        vga_cursor_tab();
+        break;
+
+    case '\b':
+        vga_cursor_backspace();
+        break;
+
+    default:
+        vga_buf[cursor_position] =
+            ((uint16_t)current_color << 8) | (uint8_t)c;
+
+        vga_set_cursor_position(cursor_position + 1);
+        break;
+    }
+}
 void vga_print(const char *str) {
     if (str == 0) {
         return;
@@ -167,3 +257,5 @@ void vga_scroll_up(void) {
 
     vga_set_cursor(0, VGA_HEIGHT - 1);
 }
+
+
