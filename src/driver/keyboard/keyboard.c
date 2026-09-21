@@ -78,19 +78,3 @@ void select_scancode_set(uint8_t set) {
     }
 }
 
-void keyboard_irq_handler(void) {
-    if (!ps2_wait_output_full()) {
-        return;
-    }
-
-    uint8_t data = ps2_read();
-
-    keycode_t keycode = scancode_set2.normal[data];
-
-    printf("\n SCAN: %h -> %h", data, keycode);
-
-    if (data == 0xf0) {
-        data = ps2_read();
-        printf("%h\n", data);
-    }
-}

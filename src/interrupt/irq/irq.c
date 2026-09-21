@@ -1,5 +1,6 @@
 #include "irq.h"
 #include "keyboard.h"
+#include "keyboard/handler.h"
 #include "pic.h"
 #include "timer.h"
 #include "vga.h"

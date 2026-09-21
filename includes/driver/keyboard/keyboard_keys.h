@@ -4,23 +4,10 @@
 #include "ps2.h"
 #include "types.h"
 
-typedef enum {
-    SCAN_STATE_NORMAL,
-    SCAN_STATE_BREAK,
-    SCAN_STATE_EXTENDED,
-    SCAN_STATE_EXTENDED_BREAK
-} scancode_state_t;
 
-typedef enum {
-    KEY_PRESSED,
-    KEY_RELEASED
-} key_action_t;
-
-typedef struct {
-    keycode_t key;
-    key_action_t action;
-} key_event_t;
-
+#define KP_BREAK 0xF0
+#define KP_EXTENDED 0xE0
+#define KP_EXTENDED_BREAK 0xE0F0
 
 typedef enum {
     KEY_NONE = 0,
@@ -173,6 +160,24 @@ typedef enum {
 
     KEY_COUNT
 } keycode_t;
+
+
+typedef enum {
+    SCAN_STATE_NORMAL,
+    SCAN_STATE_BREAK,
+    SCAN_STATE_EXTENDED,
+    SCAN_STATE_EXTENDED_BREAK
+} scancode_state_t;
+
+typedef enum {
+    KEY_PRESSED,
+    KEY_RELEASED
+} key_action_t;
+
+typedef struct {
+    keycode_t key;
+    key_action_t action;
+} key_event_t;
 
 typedef struct {
     keycode_t normal[256];
