@@ -160,6 +160,21 @@ typedef enum {
     KEY_COUNT
 } keycode_t;
 
+typedef struct {
+    bool left_shift;
+    bool right_shift;
+
+    bool left_ctrl;
+    bool right_ctrl;
+
+    bool left_alt;
+    bool right_alt;
+
+    bool caps_lock;
+    bool num_lock;
+    bool scroll_lock;
+} keyboard_state_t;
+
 typedef enum {
     SCAN_STATE_NORMAL,
     SCAN_STATE_BREAK,

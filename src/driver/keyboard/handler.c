@@ -3,10 +3,13 @@
 #include "keyboard/event_queue.h"
 #include "ps2.h"
 #include "utils.h"
+#include "vga.h"
 
 #include "stdio.h"
 
 scancode_state_t scan_state = SCAN_STATE_NORMAL;
+
+keyboard_state_t keyboard_state = {0};
 
 void keyboard_irq_handler(void) {
     if (!ps2_wait_output_full()) {
@@ -116,8 +119,72 @@ void keyboard_process_scancode(uint8_t data) {
     }
 }
 
+
 void keyboard_handle_event(key_event_t event) {
     keyboard_queue_push(event);
     printf("\n");
-    keyboard_queue_print();
+    keyboard_queue_print_last();
+}
+
+void keyboard_update_state(const key_event_t *event)
+{
+    switch (event->key) {
+
+    case KEY_LEFT_SHIFT:
+        keyboard_state.left_shift =
+            event->action == KEY_PRESSED;
+        break;
+
+    case KEY_RIGHT_SHIFT:
+        keyboard_state.right_shift =
+            event->action == KEY_PRESSED;
+        break;
+
+    case KEY_LEFT_CTRL:
+        keyboard_state.left_ctrl =
+            event->action == KEY_PRESSED;
+        break;
+
+    case KEY_RIGHT_CTRL:
+        keyboard_state.right_ctrl =
+            event->action == KEY_PRESSED;
+        break;
+
+    case KEY_LEFT_ALT:
+        keyboard_state.left_alt =
+            event->action == KEY_PRESSED;
+        break;
+
+    case KEY_RIGHT_ALT:
+        keyboard_state.right_alt =
+            event->action == KEY_PRESSED;
+        break;
+
+    default:
+        break;
+    }
+}
+
+// void keyboard_process(void)
+// {
+//     key_event_t event;
+
+//     while (keyboard_queue_pop(&event)) {
+//         keyboard_process_event(&event);
+//     }
+// }
+
+void keyboard_process_event(const key_event_t *event)
+{
+    keyboard_update_state(event);
+
+    if (event->action != KEY_PRESSED) {
+        return;
+    }
+
+    char character = keyboard_translate(event->key, &keyboard_state);
+
+    if (character != '\0') {
+        vga_print_char(character);
+    }
 }

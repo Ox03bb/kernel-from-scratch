@@ -20,5 +20,7 @@ bool keyboard_queue_push(key_event_t event);
 bool keyboard_queue_pop(key_event_t *event);
 
 void keyboard_queue_print();
+void keyboard_queue_print_last();
+
 
 #endif

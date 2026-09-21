@@ -37,3 +37,14 @@ void keyboard_queue_print() {
         printf("Event[%d]: key=%d, action=%d\n", i, event.key, event.action);
     }
 }
+
+void keyboard_queue_print_last() {
+    if (keyboard_queue.head == keyboard_queue.tail) {
+        printf("\033[31mKeyboard Queue: \033[0m Empty\n");
+        return;
+    }
+
+    uint32_t last = (keyboard_queue.head - 1 + KEYBOARD_EVENT_QUEUE_SIZE) % KEYBOARD_EVENT_QUEUE_SIZE;
+    key_event_t event = keyboard_queue.events[last];
+    printf("\033[32mKeyboard Queue:\033[0m Last event[%d] : key=%d, action=%d\n", last, event.key, event.action);
+}
