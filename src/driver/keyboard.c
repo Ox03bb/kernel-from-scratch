@@ -85,7 +85,10 @@ void keyboard_irq_handler(void) {
 
     uint8_t data = ps2_read();
 
-    printf("\n SCAN: %h", data);
+    keycode_t keycode = scancode_set2.normal[data];
+
+    printf("\n SCAN: %h -> %h", data, keycode);
+
     if (data == 0xf0) {
         data = ps2_read();
         printf("%h\n", data);

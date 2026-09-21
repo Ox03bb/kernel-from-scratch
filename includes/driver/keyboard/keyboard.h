@@ -1,6 +1,7 @@
 #ifndef keyboard_H
 #define keyboard_H
 
+#include "keyboard_keys.h"
 #include "ps2.h"
 #include "types.h"
 
