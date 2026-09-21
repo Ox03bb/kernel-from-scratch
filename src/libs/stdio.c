@@ -85,6 +85,14 @@ void println(const char *str) {
     vga_print(str);
 }
 
+void print_char(char c) {
+    vga_print_char(c);
+}
+
+void print_hex(uint32_t value) {
+    vga_print_hex(value);
+}
+
 void print_at_end(const char *str, uint8_t color) { vga_print_at_end_c(str, color); }
 
 void printf(const char *format, ...) {
