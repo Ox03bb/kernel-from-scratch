@@ -4,7 +4,6 @@
 #include "keyboard_keys.h"
 #include "types.h"
 
-
 #define KEY_COUNT 256
 
 typedef struct {
@@ -12,21 +11,15 @@ typedef struct {
     char shift;
 } keyboard_layout_entry_t;
 
-
 typedef struct {
     const char *name;
 
     keyboard_layout_entry_t keys[KEY_COUNT];
 } keyboard_layout_t;
 
-
 extern const keyboard_layout_t keyboard_layout_us;
 
-char keyboard_layout_translate(
-    const keyboard_layout_t *layout,
-    keycode_t key,
-    const keyboard_state_t *state
-);
-
+char keyboard_layout_translate(const keyboard_layout_t *layout, keycode_t key,
+                               const keyboard_state_t *state);
 
 #endif

@@ -16,11 +16,28 @@ typedef struct {
 
 extern keyboard_event_queue_t keyboard_queue;
 
-bool keyboard_queue_push(key_event_t event);
-bool keyboard_queue_pop(key_event_t *event);
+typedef enum {
+    INPUT_CHAR,
+    INPUT_ENTER,
+    INPUT_BACKSPACE,
+    INPUT_TAB,
+    INPUT_UP,
+    INPUT_DOWN,
+    INPUT_LEFT,
+    INPUT_RIGHT,
+} input_type_t;
 
-void keyboard_queue_print();
-void keyboard_queue_print_last();
+typedef struct {
+    input_type_t type;
+    char character;
+} input_event_t;
 
+void input_queue_push(input_event_t event);
+void input_queue_pop(input_event_t *event);
+void input_queue_print();
+void input_queue_print_last();
+void input_queue_clear();
+
+extern input_event_t input_queue[KEYBOARD_EVENT_QUEUE_SIZE];
 
 #endif

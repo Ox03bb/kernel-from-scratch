@@ -1,50 +1,54 @@
 #include "event_queue.h"
 #include "stdio.h"
 
-keyboard_event_queue_t keyboard_queue = {0};
+// Input event queue
 
-bool keyboard_queue_push(key_event_t event) {
-    uint32_t next = (keyboard_queue.head + 1) % KEYBOARD_EVENT_QUEUE_SIZE;
+input_event_t input_queue[KEYBOARD_EVENT_QUEUE_SIZE];
+uint32_t input_queue_head = 0;
+uint32_t input_queue_tail = 0;
 
-    if (next == keyboard_queue.tail) {
-        return false; /* queue full */
+void input_queue_push(input_event_t event) {
+    uint32_t next = (input_queue_head + 1) % KEYBOARD_EVENT_QUEUE_SIZE;
+
+    if (next == input_queue_tail) {
+        return; /* queue full */
     }
 
-    keyboard_queue.events[keyboard_queue.head] = event;
-    keyboard_queue.head = next;
-
-    return true;
+    input_queue[input_queue_head] = event;
+    input_queue_head = next;
 }
 
-bool keyboard_queue_pop(key_event_t *event) {
-    if (keyboard_queue.head == keyboard_queue.tail) {
-        return false; /* queue empty */
+void input_queue_pop(input_event_t *event) {
+    if (input_queue_head == input_queue_tail) {
+        return; /* queue empty */
     }
 
-    *event = keyboard_queue.events[keyboard_queue.tail];
+    *event = input_queue[input_queue_tail];
 
-    keyboard_queue.tail = (keyboard_queue.tail + 1) % KEYBOARD_EVENT_QUEUE_SIZE;
-
-    return true;
+    input_queue_tail = (input_queue_tail + 1) % KEYBOARD_EVENT_QUEUE_SIZE;
 }
 
-void keyboard_queue_print() {
-
-    printf("\033[32mKeyboard Queue: \033[0m head=%d, tail=%d\n", keyboard_queue.head,
-           keyboard_queue.tail);
-    for (uint32_t i = 0; i < keyboard_queue.head - keyboard_queue.tail; i++) {
-        key_event_t event = keyboard_queue.events[i];
-        printf("Event[%d]: key=%d, action=%d\n", i, event.key, event.action);
+void input_queue_print() {
+    printf("\033[32mInput Queue: \033[0m head=%d, tail=%d\n", input_queue_head, input_queue_tail);
+    for (uint32_t i = 0; i < input_queue_head - input_queue_tail; i++) {
+        input_event_t event = input_queue[i];
+        printf("Event[%d]: type=%d, character=%c\n", i, event.type, event.character);
     }
 }
 
-void keyboard_queue_print_last() {
-    if (keyboard_queue.head == keyboard_queue.tail) {
-        printf("\033[31mKeyboard Queue: \033[0m Empty\n");
+void input_queue_print_last() {
+    if (input_queue_head == input_queue_tail) {
+        printf("\033[31mInput Queue: \033[0m Empty\n");
         return;
     }
 
-    uint32_t last = (keyboard_queue.head - 1 + KEYBOARD_EVENT_QUEUE_SIZE) % KEYBOARD_EVENT_QUEUE_SIZE;
-    key_event_t event = keyboard_queue.events[last];
-    printf("\033[32mKeyboard Queue:\033[0m Last event[%d] : key=%d, action=%d\n", last, event.key, event.action);
+    uint32_t last = (input_queue_head - 1 + KEYBOARD_EVENT_QUEUE_SIZE) % KEYBOARD_EVENT_QUEUE_SIZE;
+    input_event_t event = input_queue[last];
+    printf("\033[32mInput Queue:\033[0m Last event[%d] : type=%d, character=%c\n", last, event.type,
+           event.character);
+}
+
+void input_queue_clear() {
+    input_queue_head = 0;
+    input_queue_tail = 0;
 }
