@@ -5,9 +5,9 @@
 
 #define VGA_ADDRESS 0xB8000
 
-#define VGA_WIDTH  80
-#define VGA_HEIGHT 25
-#define VGA_RES    (VGA_HEIGHT * VGA_WIDTH)
+#define VGA_WIDTH     80
+#define VGA_HEIGHT    25
+#define VGA_RES       (VGA_HEIGHT * VGA_WIDTH)
 #define VGA_TAB_WIDTH 4
 
 #define VGA_INDEX_PORT 0x3D4

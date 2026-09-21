@@ -27,8 +27,7 @@ void keyboard_irq_handler(void) {
     // }
 }
 
-void keyboard_process_scancode(uint8_t data)
-{
+void keyboard_process_scancode(uint8_t data) {
     keycode_t key;
     key_event_t event;
 
@@ -59,7 +58,6 @@ void keyboard_process_scancode(uint8_t data)
 
         return;
 
-
     case SCAN_STATE_BREAK:
 
         key = scancode_set2.normal[data];
@@ -76,7 +74,6 @@ void keyboard_process_scancode(uint8_t data)
         keyboard_handle_event(event);
 
         return;
-
 
     case SCAN_STATE_EXTENDED:
 
@@ -100,7 +97,6 @@ void keyboard_process_scancode(uint8_t data)
 
         return;
 
-
     case SCAN_STATE_EXTENDED_BREAK:
 
         key = scancode_set2.extended[data];
@@ -120,7 +116,7 @@ void keyboard_process_scancode(uint8_t data)
     }
 }
 
-void keyboard_handle_event(key_event_t event){
+void keyboard_handle_event(key_event_t event) {
     keyboard_queue_push(event);
     printf("\n");
     keyboard_queue_print();

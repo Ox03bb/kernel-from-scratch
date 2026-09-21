@@ -1,11 +1,10 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include "keyboard_keys.h"
 #include "keyboard.h"
+#include "keyboard_keys.h"
 #include "ps2.h"
 #include "types.h"
-
 
 #define KEYBOARD_EVENT_QUEUE_SIZE 256
 

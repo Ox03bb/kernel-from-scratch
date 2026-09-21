@@ -77,4 +77,3 @@ void select_scancode_set(uint8_t set) {
         return;
     }
 }
-
