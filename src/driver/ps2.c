@@ -126,9 +126,11 @@ void ps2_init(void) {
     }
 
     uint8_t config = ps2_read_config();
-    config &= ~(1u << 0);
-    config &= ~(1u << 1);
-    config &= ~(1u << 6);
+
+    config |= (1u << 0);  // IRQ1 enabled
+    config &= ~(1u << 1); // IRQ12 disabled
+    config &= ~(1u << 6); // translation disabled
+
     ps2_write_config(config);
 
     if (ps2_test_port1()) {

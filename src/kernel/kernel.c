@@ -55,15 +55,7 @@ void kernel_main() {
     KERNEL_INIT("PS/2 controller", ps2_init);
     KERNEL_INIT("Keyboard Driver", init_keyboard);
 
-    uint8_t scan_code_set = keyboard_get_scan_code_set();
-
-    printf("Keyboard Scan Code Set: %h\n", scan_code_set);
-    while (1) {
-        if (ps2_output_buffer_full()) {
-            uint8_t data = ps2_read();
-            printf("SCAN: %h\n", data);
-        }
-    }
+    pic_clear_mask(1);
 
     for (;;) {
         asm volatile("hlt");

@@ -9,6 +9,8 @@ void init_keyboard(void) {
     set_scaning(false);
     select_scancode_set(0x02);
     set_scaning(true);
+
+    ps2_flush_output();
 }
 
 void reset_keyboard(void) {
@@ -77,9 +79,15 @@ void select_scancode_set(uint8_t set) {
 }
 
 void keyboard_irq_handler(void) {
-    printf("KEYBOARD IRQ!\n");
+    if (!ps2_wait_output_full()) {
+        return;
+    }
 
     uint8_t data = ps2_read();
 
-    printf("SCAN: %h\n", data);
+    printf("\n SCAN: %h", data);
+    if (data == 0xf0) {
+        data = ps2_read();
+        printf("%h\n", data);
+    }
 }

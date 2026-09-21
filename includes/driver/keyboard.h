@@ -17,6 +17,8 @@ void reset_keyboard(void);
 void set_scaning(bool state);
 void select_scancode_set(uint8_t set);
 
+uint8_t keyboard_get_scan_code_set(void);
+
 void keyboard_irq_handler(void);
 
 #endif
