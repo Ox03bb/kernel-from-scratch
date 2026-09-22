@@ -71,6 +71,8 @@ void kernel_main() {
             print("Character: ");
             print_char(event.character);
             print("\n");
+            print("action:  ");
+            print(event.action == KEY_PRESSED ? "pressed\n" : "released\n");
         } else if (event.key == KEY_ENTER && event.action == KEY_PRESSED) {
             print("Enter key pressed\n");
         } else if (event.key == KEY_BACKSPACE && event.action == KEY_PRESSED) {
