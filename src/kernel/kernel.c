@@ -67,25 +67,27 @@ void kernel_main() {
             continue;
         }
 
-        if (event.type == INPUT_CHAR) {
+        if (event.type == INPUT_EVENT_CHAR) {
             print("Character: ");
             print_char(event.character);
             print("\n");
-
-        } else if (event.type == INPUT_ENTER) {
+        } else if (event.key == KEY_ENTER && event.action == KEY_PRESSED) {
             print("Enter key pressed\n");
-        } else if (event.type == INPUT_BACKSPACE) {
+        } else if (event.key == KEY_BACKSPACE && event.action == KEY_PRESSED) {
             print("Backspace key pressed\n");
-        } else if (event.type == INPUT_TAB) {
+        } else if (event.key == KEY_TAB && event.action == KEY_PRESSED) {
             print("Tab key pressed\n");
-        } else if (event.type == INPUT_UP) {
+        } else if (event.key == KEY_UP && event.action == KEY_PRESSED) {
             print("Up arrow key pressed\n");
-        } else if (event.type == INPUT_DOWN) {
+        } else if (event.key == KEY_DOWN && event.action == KEY_PRESSED) {
             print("Down arrow key pressed\n");
-        } else if (event.type == INPUT_LEFT) {
+        } else if (event.key == KEY_LEFT && event.action == KEY_PRESSED) {
             print("Left arrow key pressed\n");
-        } else if (event.type == INPUT_RIGHT) {
+        } else if (event.key == KEY_RIGHT && event.action == KEY_PRESSED) {
             print("Right arrow key pressed\n");
+        } else if (event.key == KEY_LEFT_CTRL) {
+            print("Ctrl key ");
+            print(event.action == KEY_PRESSED ? "pressed\n" : "released\n");
         }
     }
 
