@@ -1,13 +1,14 @@
 #ifndef VGA_H
 #define VGA_H
 
-#include <stdint.h>
+#include "types.h"
 
 #define VGA_ADDRESS 0xB8000
 
-#define VGA_WIDTH  80
-#define VGA_HEIGHT 25
-#define VGA_RES    (VGA_HEIGHT * VGA_WIDTH)
+#define VGA_WIDTH     80
+#define VGA_HEIGHT    25
+#define VGA_RES       (VGA_HEIGHT * VGA_WIDTH)
+#define VGA_TAB_WIDTH 4
 
 #define VGA_INDEX_PORT 0x3D4
 #define VGA_DATA_PORT  0x3D5
@@ -27,6 +28,15 @@
 #define BROWN      0x06 // YELLOW
 #define LIGHT_GRAY 0x07 // WHITE
 
+#define DARK_GRAY     BLACk | LIGHT_FLAG
+#define LIGHT_BLUE    BLUE | LIGHT_FLAG
+#define LIGHT_GREEN   GREEN | LIGHT_FLAG
+#define LIGHT_CYAN    CYAN | LIGHT_FLAG
+#define LIGHT_RED     RED | LIGHT_FLAG
+#define LIGHT_MAGENTA MAGENTA | LIGHT_FLAG
+#define YELLOW        BROWN | LIGHT_FLAG
+#define WHITE         LIGHT_GRAY | LIGHT_FLAG
+
 #define LIGHT_FLAG 0x08
 
 #define DEFUALT_F LIGHT_GRAY
@@ -44,6 +54,8 @@ typedef union vga_entry {
 void vga_init(void);
 
 void vga_clear(void);
+
+void vga_scroll_up(void);
 
 void vga_print_char(char c);
 

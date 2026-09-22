@@ -21,15 +21,91 @@ void vga_init(void) {
     vga_cursor_enable();
 }
 
+// helper functions
+
+void vga_cursor_carriage_return(void) {
+    uint16_t column = cursor_position % VGA_WIDTH;
+
+    cursor_position -= column;
+
+    vga_set_cursor_position(cursor_position);
+}
+
+void vga_cursor_newline(void) {
+    uint16_t row = cursor_position / VGA_WIDTH;
+
+    row++;
+
+    if (row >= VGA_HEIGHT) {
+        vga_scroll_up();
+        row = VGA_HEIGHT - 1;
+    }
+
+    cursor_position = row * VGA_WIDTH;
+
+    vga_set_cursor_position(cursor_position);
+}
+
+void vga_cursor_tab(void) {
+    uint16_t column = cursor_position % VGA_WIDTH;
+
+    uint16_t spaces = VGA_TAB_WIDTH - (column % VGA_TAB_WIDTH);
+
+    for (uint16_t i = 0; i < spaces; i++) {
+
+        if (cursor_position >= VGA_WIDTH * VGA_HEIGHT) {
+            vga_scroll_up();
+
+            cursor_position = (VGA_HEIGHT - 1) * VGA_WIDTH;
+        }
+
+        vga_buf[cursor_position] = ((uint16_t)current_color << 8) | ' ';
+
+        cursor_position++;
+    }
+
+    vga_set_cursor_position(cursor_position);
+}
+
+void vga_cursor_backspace(void) {
+    if (cursor_position == 0)
+        return;
+
+    cursor_position--;
+
+    vga_buf[cursor_position] = ((uint16_t)current_color << 8) | ' ';
+
+    vga_set_cursor_position(cursor_position);
+}
+
 // Print
 
 void vga_print_char(char c) {
+    switch (c) {
 
-    vga_buf[cursor_position] = (current_color << 8 | c);
+    case '\n':
+        vga_cursor_newline();
+        break;
 
-    vga_set_cursor_position((cursor_position + 1));
+    case '\r':
+        vga_cursor_carriage_return();
+        break;
+
+    case '\t':
+        vga_cursor_tab();
+        break;
+
+    case '\b':
+        vga_cursor_backspace();
+        break;
+
+    default:
+        vga_buf[cursor_position] = ((uint16_t)current_color << 8) | (uint8_t)c;
+
+        vga_set_cursor_position(cursor_position + 1);
+        break;
+    }
 }
-
 void vga_print(const char *str) {
     if (str == 0) {
         return;
@@ -38,7 +114,11 @@ void vga_print(const char *str) {
     for (uint32_t i = 0; str[i] != '\0'; i++) {
         if (str[i] == '\n') {
             uint8_t y = vga_get_cursor_y() + 1;
-            vga_set_cursor(0, y);
+            if (y >= VGA_HEIGHT) {
+                vga_scroll_up();
+            } else {
+                vga_set_cursor(0, y);
+            }
 
         } else {
             vga_print_char(str[i]);
@@ -119,6 +199,12 @@ uint8_t vga_get_cursor_x(void) { return vga_get_cursor_position() % VGA_WIDTH; }
 
 uint8_t vga_get_cursor_y(void) { return vga_get_cursor_position() / VGA_WIDTH; }
 
+uint8_t vga_calc_cursor_x(uint16_t pos) { return pos % VGA_WIDTH; }
+
+uint8_t vga_calc_cursor_y(uint16_t pos) { return pos / VGA_WIDTH; }
+
+uint16_t vga_calc_cursor_position(uint8_t x, uint8_t y) { return y * VGA_WIDTH + x; }
+
 // Clear
 
 void vga_clear(void) {
@@ -130,4 +216,30 @@ void vga_clear(void) {
     }
 
     vga_set_cursor(0, 0);
+}
+
+// secrole
+
+void vga_scroll_up(void) {
+    /* Move every row one line upward */
+    for (uint16_t y = 0; y < VGA_HEIGHT - 1; y++) {
+
+        for (uint16_t x = 0; x < VGA_WIDTH; x++) {
+
+            uint16_t dst = y * VGA_WIDTH + x;
+            uint16_t src = (y + 1) * VGA_WIDTH + x;
+
+            vga_buf[dst] = vga_buf[src];
+        }
+    }
+
+    /* Clear the new bottom line */
+    for (uint16_t x = 0; x < VGA_WIDTH; x++) {
+
+        uint16_t pos = (VGA_HEIGHT - 1) * VGA_WIDTH + x;
+
+        vga_buf[pos] = ((uint16_t)current_color << 8) | ' ';
+    }
+
+    vga_set_cursor(0, VGA_HEIGHT - 1);
 }

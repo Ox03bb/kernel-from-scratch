@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <stdint.h>
+#include "types.h"
 
 void timer_init(uint32_t frequency);
 

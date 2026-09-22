@@ -4,40 +4,74 @@
 
 #include "pic.h"
 #include "pit.h"
+#include "ps2.h"
 #include "timer.h"
 
+#include "keyboard.h"
 #include "vga.h"
+
 #include "vga_lib.h"
 
 #include "panic.h"
 
+#include "stdio.h"
 #include "utils.h"
 
-void kernel_main() {
+#include "string.h"
 
-    vga_init();
-    vga_log_info("[", "init", "] vga");
-    vga_print_at_end_c("... Ok\n", GREEN);
+#include "keyboard/event_queue.h"
+#include "keyboard/handler.h"
 
-    vga_log_info("[", "init", "] pic");
-    pic_init();
-    vga_print_at_end_c("... Ok\n", GREEN);
+#define TIMER_FREQ 1000 // 1000 Hz
 
-    vga_log_info("[", "init", "] idt");
-    idt_init();
-    vga_print_at_end_c("... Ok\n", GREEN);
+void KERNEL_INIT(const char *name, void (*init_function)(void)) {
+    print("[\033[34minit\033[0m] ");
+    vga_print(name);
 
-    vga_log_info("[", "init", "] pit and timer");
+    init_function();
+
+    print_at_end("... Ok\n", GREEN);
+}
+
+void timer_setup() {
     pic_clear_mask(0);
-    timer_init(1000); // 1000 Hz
-    
+    timer_init(TIMER_FREQ); // 1000 Hz
+
     sti();
 
-    for (int i = 0; i < 53; i++) {
+    for (int i = 0; i < 33; i++) {
         vga_print(".");
         timer_sleep(0.02);
     }
-    vga_print_at_end_c("... Ok\n", GREEN);  // timer 
+}
+
+void kernel_main() {
+
+    KERNEL_INIT("VGA console", vga_init);
+
+    KERNEL_INIT("PIC - Programmable Interrupt Controller", pic_init);
+
+    KERNEL_INIT("IDT - Interrupt Descriptor Table", idt_init);
+
+    KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
+
+    KERNEL_INIT("PS/2 controller", ps2_init);
+    KERNEL_INIT("Keyboard Driver", init_keyboard);
+
+    pic_clear_mask(1);
+
+    while (1) {
+        input_event_t event;
+        input_queue_pop(&event);
+
+        if (event.type == INPUT_CHAR) {
+            print("Character: ");
+            print_char(event.character);
+            print("\n");
+            event = (input_event_t){0};
+            event.type = 11;
+        }
+    }
 
     for (;;) {
         asm volatile("hlt");

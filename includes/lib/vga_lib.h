@@ -1,7 +1,7 @@
 #ifndef VGA_LIB_H
 #define VGA_LIB_H
 
-#include <stdint.h>
+#include "types.h"
 
 /*
  * Logging

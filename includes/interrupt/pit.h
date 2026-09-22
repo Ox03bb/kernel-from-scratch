@@ -7,7 +7,7 @@
 #define PIT_COMMAND   0x43
 #define PIT_BASE_FREQ 1193182
 
-#include <stdint.h>
+#include "types.h"
 
 /* Channels */
 #define PIT_CHANNEL_0 0
