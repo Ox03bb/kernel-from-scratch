@@ -114,7 +114,8 @@ char keyboard_layout_translate(const keyboard_layout_t *layout, keycode_t key,
     }
 
     bool shifted = state->left_shift || state->right_shift;
-    bool caps_active = state->caps_lock && ((key >= KEY_A && key <= KEY_Z) || (key >= KEY_0 && key <= KEY_9));
+    bool caps_active =
+        state->caps_lock && ((key >= KEY_A && key <= KEY_Z) || (key >= KEY_0 && key <= KEY_9));
 
     if (shifted ^ caps_active) {
         return entry.shift;

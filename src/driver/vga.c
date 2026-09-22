@@ -260,59 +260,29 @@ void vga_scroll_up(void) {
     vga_set_cursor(0, VGA_HEIGHT - 1);
 }
 
-
 // update specific position
 
-void vga_put_at(uint8_t x, uint8_t y, char c, uint8_t color){
+void vga_put_at(uint8_t x, uint8_t y, char c, uint8_t color) {
     uint16_t index = y * VGA_WIDTH + x;
 
-    vga_buf[index] =
-        ((uint16_t)color << 8) | (uint8_t)c;
+    vga_buf[index] = ((uint16_t)color << 8) | (uint8_t)c;
 }
 
-void vga_clear_region(
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t height,
-    uint8_t color
-)
-{
+void vga_clear_region(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t color) {
     for (uint8_t row = 0; row < height; row++) {
         for (uint8_t col = 0; col < width; col++) {
-            vga_put_at(
-                x + col,
-                y + row,
-                ' ',
-                color
-            );
+            vga_put_at(x + col, y + row, ' ', color);
         }
     }
 }
 
-void vga_print_at(
-    uint8_t x,
-    uint8_t y,
-    const char *str,
-    uint8_t color
-)
-{
+void vga_print_at(uint8_t x, uint8_t y, const char *str, uint8_t color) {
     for (uint32_t i = 0; str[i] != '\0'; i++) {
-        vga_put_at(
-            x + i,
-            y,
-            str[i],
-            color
-        );
+        vga_put_at(x + i, y, str[i], color);
     }
 }
 
-void vga_print_at_center(
-    uint8_t y,
-    const char *str,
-    uint8_t color
-)
-{
+void vga_print_at_center(uint8_t y, const char *str, uint8_t color) {
     size_t len = strlen(str);
     if (len > VGA_WIDTH) {
         len = VGA_WIDTH;
@@ -321,12 +291,6 @@ void vga_print_at_center(
     uint8_t x = (VGA_WIDTH - len) / 2;
 
     for (size_t i = 0; i < len; i++) {
-        vga_put_at(
-            x + i,
-            y,
-            str[i],
-            color
-        );
+        vga_put_at(x + i, y, str[i], color);
     }
 }
- 
