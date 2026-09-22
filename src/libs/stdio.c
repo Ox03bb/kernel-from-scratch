@@ -133,68 +133,110 @@ char *formatter(const char *format, ...) {
 
 char *vformatter(const char *format, va_list args) {
     buffer[0] = '\0';
+    size_t used = 0;
 
     while (*format) {
-
         if (*format != '%') {
             char temp[2] = {*format, '\0'};
-            strcat(buffer, temp);
-
+            size_t len = strlen(temp);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, temp);
+                used += len;
+            }
             format++;
             continue;
         }
 
         format++;
+        if (*format == '\0') {
+            if (used + 1 < sizeof(buffer)) {
+                buffer[used++] = '%';
+                buffer[used] = '\0';
+            }
+            break;
+        }
 
         switch (*format) {
 
         case 's': {
             const char *str = va_arg(args, const char *);
-            strcat(buffer, str);
+            size_t len = strlen(str);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, str);
+                used += len;
+            }
             break;
         }
 
         case 'd': {
             int number = va_arg(args, int);
-            strcat(buffer, int2str(number));
+            char *str = int2str(number);
+            size_t len = strlen(str);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, str);
+                used += len;
+            }
             break;
         }
 
         case 'x': {
             uint32_t number = va_arg(args, uint32_t);
-            strcat(buffer, uint2str(number, 16, false));
+            char *str = uint2str(number, 16, false);
+            size_t len = strlen(str);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, str);
+                used += len;
+            }
             break;
         }
 
         case 'h': {
             uint32_t number = va_arg(args, uint32_t);
-            strcat(buffer, uint2str(number, 16, true));
+            char *str = uint2str(number, 16, true);
+            size_t len = strlen(str);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, str);
+                used += len;
+            }
             break;
         }
 
         case 'b': {
             uint32_t number = va_arg(args, uint32_t);
-            strcat(buffer, uint2str(number, 2, false));
+            char *str = uint2str(number, 2, false);
+            size_t len = strlen(str);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, str);
+                used += len;
+            }
             break;
         }
 
         case 'c': {
             char temp[2];
-
             temp[0] = (char)va_arg(args, int);
             temp[1] = '\0';
-
-            strcat(buffer, temp);
+            size_t len = strlen(temp);
+            if (used + len + 1 < sizeof(buffer)) {
+                strcat(buffer, temp);
+                used += len;
+            }
             break;
         }
 
         case '%': {
-            strcat(buffer, "%");
+            if (used + 2 < sizeof(buffer)) {
+                strcat(buffer, "%");
+                used++;
+            }
             break;
         }
 
         default: {
-            strcat(buffer, "%");
+            if (used + 2 < sizeof(buffer)) {
+                strcat(buffer, "%");
+                used++;
+            }
             break;
         }
         }

@@ -18,7 +18,6 @@ void keyboard_irq_handler(void) {
     }
 
     uint8_t data = ps2_read();
-
     keyboard_process_scancode(data);
 }
 

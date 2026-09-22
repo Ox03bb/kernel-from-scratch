@@ -28,7 +28,7 @@
 #define BROWN      0x06 // YELLOW
 #define LIGHT_GRAY 0x07 // WHITE
 
-#define DARK_GRAY     BLACk | LIGHT_FLAG
+#define DARK_GRAY     BLACK | LIGHT_FLAG
 #define LIGHT_BLUE    BLUE | LIGHT_FLAG
 #define LIGHT_GREEN   GREEN | LIGHT_FLAG
 #define LIGHT_CYAN    CYAN | LIGHT_FLAG
@@ -82,5 +82,27 @@ uint16_t vga_get_cursor_position(void);
 uint8_t vga_get_cursor_x(void);
 
 uint8_t vga_get_cursor_y(void);
+
+void vga_put_at(uint8_t x, uint8_t y, char c, uint8_t color);
+void vga_clear_region(
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t color
+);
+
+void vga_print_at(
+    uint8_t x,
+    uint8_t y,
+    const char *str,
+    uint8_t color
+);
+void vga_print_at_center(
+    uint8_t y,
+    const char *str,
+    uint8_t color
+);
+ 
 
 #endif

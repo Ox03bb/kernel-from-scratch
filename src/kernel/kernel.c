@@ -62,19 +62,31 @@ void kernel_main() {
 
     while (1) {
         input_event_t event;
-        input_queue_pop(&event);
+        if (!input_queue_pop(&event)) {
+            asm volatile("hlt");
+            continue;
+        }
 
         if (event.type == INPUT_CHAR) {
             print("Character: ");
             print_char(event.character);
             print("\n");
-            event = (input_event_t){0};
-            event.type = 11;
-        }
-    }
 
-    for (;;) {
-        asm volatile("hlt");
+        } else if (event.type == INPUT_ENTER) {
+            print("Enter key pressed\n");
+        } else if (event.type == INPUT_BACKSPACE) {
+            print("Backspace key pressed\n");
+        } else if (event.type == INPUT_TAB) {
+            print("Tab key pressed\n");
+        } else if (event.type == INPUT_UP) {
+            print("Up arrow key pressed\n");
+        } else if (event.type == INPUT_DOWN) {
+            print("Down arrow key pressed\n");
+        } else if (event.type == INPUT_LEFT) {
+            print("Left arrow key pressed\n");
+        } else if (event.type == INPUT_RIGHT) {
+            print("Right arrow key pressed\n");
+        }
     }
 
     return;

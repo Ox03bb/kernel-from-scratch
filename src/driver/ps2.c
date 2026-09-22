@@ -22,16 +22,24 @@ bool ps2_parity_error(void) { return ps2_status().parity_error; }
 
 bool ps2_zero(void) { return ps2_status().zero; }
 
+#define PS2_WAIT_MAX 100000
+
 bool ps2_wait_input_clear(void) {
-    while (ps2_input_buffer_full())
-        ;
-    return true;
+    for (uint32_t i = 0; i < PS2_WAIT_MAX; i++) {
+        if (!ps2_input_buffer_full()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool ps2_wait_output_full(void) {
-    while (!ps2_output_buffer_full())
-        ;
-    return true;
+    for (uint32_t i = 0; i < PS2_WAIT_MAX; i++) {
+        if (ps2_output_buffer_full()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ps2_flush_output(void) {

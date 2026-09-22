@@ -16,6 +16,10 @@ typedef struct {
 
 extern keyboard_event_queue_t keyboard_queue;
 
+void keyboard_queue_push(key_event_t event);
+bool keyboard_queue_pop(key_event_t *event);
+void keyboard_queue_clear(void);
+
 typedef enum {
     INPUT_CHAR,
     INPUT_ENTER,
@@ -33,7 +37,7 @@ typedef struct {
 } input_event_t;
 
 void input_queue_push(input_event_t event);
-void input_queue_pop(input_event_t *event);
+bool input_queue_pop(input_event_t *event);
 void input_queue_print();
 void input_queue_print_last();
 void input_queue_clear();

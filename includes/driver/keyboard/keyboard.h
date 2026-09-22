@@ -16,6 +16,7 @@ typedef enum {
 void init_keyboard(void);
 
 void reset_keyboard(void);
+void set_scanning(bool state);
 void set_scaning(bool state);
 void select_scancode_set(uint8_t set);
 void keyboard_set_layout(const keyboard_layout_t *layout);
