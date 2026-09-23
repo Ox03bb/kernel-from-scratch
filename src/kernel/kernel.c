@@ -19,6 +19,8 @@
 
 #include "string.h"
 
+#include "driver/tty.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
@@ -57,41 +59,21 @@ void kernel_main() {
 
     KERNEL_INIT("PS/2 controller", ps2_init);
     KERNEL_INIT("Keyboard Driver", init_keyboard);
-
     pic_clear_mask(1);
 
-    while (1) {
-        input_event_t event;
-        if (!input_queue_pop(&event)) {
-            asm volatile("hlt");
-            continue;
-        }
 
-        if (event.type == INPUT_EVENT_CHAR) {
-            print("Character: ");
-            print_char(event.character);
-            print("\n");
-            print("action:  ");
-            print(event.action == KEY_PRESSED ? "pressed\n" : "released\n");
-        } else if (event.key == KEY_ENTER && event.action == KEY_PRESSED) {
-            print("Enter key pressed\n");
-        } else if (event.key == KEY_BACKSPACE && event.action == KEY_PRESSED) {
-            print("Backspace key pressed\n");
-        } else if (event.key == KEY_TAB && event.action == KEY_PRESSED) {
-            print("Tab key pressed\n");
-        } else if (event.key == KEY_UP && event.action == KEY_PRESSED) {
-            print("Up arrow key pressed\n");
-        } else if (event.key == KEY_DOWN && event.action == KEY_PRESSED) {
-            print("Down arrow key pressed\n");
-        } else if (event.key == KEY_LEFT && event.action == KEY_PRESSED) {
-            print("Left arrow key pressed\n");
-        } else if (event.key == KEY_RIGHT && event.action == KEY_PRESSED) {
-            print("Right arrow key pressed\n");
-        } else if (event.key == KEY_LEFT_CTRL) {
-            print("Ctrl key ");
-            print(event.action == KEY_PRESSED ? "pressed\n" : "released\n");
-        }
+    tty_t tty0;
+    tty_init(&tty0);
+    
+
+    int i = 0;
+    while (1) {
+
+
+        tty_process_events(&tty0);
+
     }
 
+    print("[\033[32mready\033[0m] Kernel initialized successfully!\n");
     return;
 }

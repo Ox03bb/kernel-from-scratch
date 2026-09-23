@@ -9,8 +9,8 @@
 struct console_t;
 
 typedef struct {
-    void (*write)(struct console_t *console, char *str);
-    void (*clear)(struct console_t *console);
+    void (*write)(struct console_t *self, char *str);
+    void (*clear)(struct console_t *self);
 } console_interface_t;
 
 typedef struct console_t {
@@ -18,6 +18,5 @@ typedef struct console_t {
 } console_t;
 
 void console_init(console_t *console);
-
 
 #endif

@@ -17,6 +17,8 @@ static const tty_interface_t tty_default_interface = {
     .clear = tty_clear,
 };
 
+console_t vga_console;
+
 void tty_init(tty_t *tty) {
 
     if (tty == NULL)
@@ -34,6 +36,8 @@ void tty_init(tty_t *tty) {
         tty->buffer[i] = '\0';
 
     tty->method = tty_default_interface;
+
+    tty->console = &vga_console;
 
     console_init(tty->console);
 }
@@ -89,8 +93,8 @@ void tty_clear(tty_t *tty) {
 }
 
 void tty_update_modifiers(tty_t *tty, const input_event_t *event) {
-    if (tty == NULL || event == NULL)
-        return;
+    if (tty == NULL || event == NULL){
+        return;}
 
     bool pressed = event->action == KEY_PRESSED;
 
@@ -146,7 +150,8 @@ void tty_update_modifiers(tty_t *tty, const input_event_t *event) {
     }
 }
 
-void tty_handle_event(tty_t *tty, const input_event_t *event) {
+void tty_handle_event(tty_t *tty, const input_event_t *event)
+{
     if (tty == NULL || event == NULL)
         return;
 
@@ -205,6 +210,9 @@ void tty_handle_event(tty_t *tty, const input_event_t *event) {
                 tty->input_length--;
 
             tty->buffer[tty->buffer_index] = '\0';
+
+            if (tty->echo)
+                tty->method.write(tty, "\b");
         }
 
         return;
@@ -217,8 +225,10 @@ void tty_handle_event(tty_t *tty, const input_event_t *event) {
             tty->buffer[tty->buffer_index] = '\0';
 
             tty->input_length++;
-
             tty->line_ready = true;
+
+            if (tty->echo)
+                tty->console->method.write(tty->console, "\n");
         }
 
         return;
@@ -232,5 +242,27 @@ void tty_handle_event(tty_t *tty, const input_event_t *event) {
     if (c == '\0')
         return;
 
-    tty_putc(tty, c);
+    if (tty->buffer_index < TTY_BUFFER_SIZE - 1) {
+
+        tty->buffer[tty->buffer_index++] = c;
+        tty->buffer[tty->buffer_index] = '\0';
+
+        tty->input_length++;
+
+        if (tty->echo) {
+            char output[2] = {c, '\0'};
+            tty->console->method.write(tty->console, output);
+        }
+    }
+}
+
+// entry point 
+
+void tty_process_events(tty_t *tty)
+{
+    input_event_t event;
+
+    while (input_queue_pop(&event)) {
+        tty_handle_event(tty, &event);
+    }
 }

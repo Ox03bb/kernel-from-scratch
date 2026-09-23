@@ -53,4 +53,7 @@ void tty_init(tty_t *tty);
 void tty_handle_event(tty_t *tty, const input_event_t *event);
 void tty_update_modifiers(tty_t *tty, const input_event_t *event);
 
+void tty_process_events(tty_t *tty);
+
+
 #endif
