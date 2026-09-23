@@ -60,8 +60,13 @@ void tty_write(tty_t *tty, const char *str) {
     if (tty == NULL || str == NULL)
         return;
 
-    for (size_t i = 0; str[i] != '\0'; i++)
-        tty_putc(tty, str[i]);
+    if (tty->console == NULL || tty->console->method.write == NULL)
+        return;
+
+    for (size_t i = 0; str[i] != '\0'; i++) {
+        char ch[2] = {str[i], '\0'};
+        tty->console->method.write(tty->console, ch);
+    }
 }
 
 void tty_read(tty_t *tty, char *buf, size_t len) {
@@ -92,11 +97,15 @@ void tty_clear(tty_t *tty) {
     tty->cursor_index = 0;
     tty->input_length = 0;
     tty->line_ready = false;
+
+    if (tty->console != NULL && tty->console->method.clear != NULL)
+        tty->console->method.clear(tty->console);
 }
 
 void tty_update_modifiers(tty_t *tty, const input_event_t *event) {
-    if (tty == NULL || event == NULL){
-        return;}
+    if (tty == NULL || event == NULL) {
+        return;
+    }
 
     bool pressed = event->action == KEY_PRESSED;
 
@@ -152,8 +161,7 @@ void tty_update_modifiers(tty_t *tty, const input_event_t *event) {
     }
 }
 
-void tty_handle_event(tty_t *tty, const input_event_t *event)
-{
+void tty_handle_event(tty_t *tty, const input_event_t *event) {
     if (tty == NULL || event == NULL)
         return;
 
@@ -254,7 +262,7 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
 
             if (tty->echo) {
                 vga_set_cursor_position(vga_get_cursor_position() +
-                                         (tty->buffer_index - tty->cursor_index));
+                                        (tty->buffer_index - tty->cursor_index));
             }
 
             tty->buffer[tty->buffer_index++] = '\n';
@@ -305,10 +313,9 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
     }
 }
 
-// entry point 
+// entry point
 
-void tty_process_events(tty_t *tty)
-{
+void tty_process_events(tty_t *tty) {
     input_event_t event;
 
     while (input_queue_pop(&event)) {

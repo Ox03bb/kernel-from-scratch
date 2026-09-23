@@ -61,14 +61,11 @@ void kernel_main() {
     KERNEL_INIT("Keyboard Driver", init_keyboard);
     pic_clear_mask(1);
 
-
     tty_t tty0;
     tty_init(&tty0);
-    
 
     int i = 0;
     while (1) {
-
 
         tty_process_events(&tty0);
     }

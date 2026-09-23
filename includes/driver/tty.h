@@ -32,7 +32,6 @@ typedef struct {
     void (*clear)(struct tty_t *tty);
 } tty_interface_t;
 
-
 typedef struct tty_t {
     bool echo;
     bool line_ready;
@@ -46,7 +45,7 @@ typedef struct tty_t {
 
     tty_interface_t method;
 
-    console_t *console; 
+    console_t *console;
 } tty_t;
 
 void tty_init(tty_t *tty);
@@ -55,6 +54,5 @@ void tty_handle_event(tty_t *tty, const input_event_t *event);
 void tty_update_modifiers(tty_t *tty, const input_event_t *event);
 
 void tty_process_events(tty_t *tty);
-
 
 #endif

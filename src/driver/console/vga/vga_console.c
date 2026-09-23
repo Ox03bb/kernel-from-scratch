@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-#include "console.h"s
+#include "console.h"
 
 #include "driver/tty.h"
 
@@ -11,12 +11,10 @@
 void console_write(console_t *console, char *str);
 void console_clear(console_t *console);
 
-
 static const console_interface_t console_default_interface = {
     .write = console_write,
     .clear = console_clear,
 };
-
 
 void console_init(console_t *console) {
     if (console == NULL)
