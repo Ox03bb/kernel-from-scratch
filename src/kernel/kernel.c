@@ -71,7 +71,6 @@ void kernel_main() {
 
 
         tty_process_events(&tty0);
-
     }
 
     print("[\033[32mready\033[0m] Kernel initialized successfully!\n");

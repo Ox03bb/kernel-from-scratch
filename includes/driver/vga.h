@@ -77,6 +77,11 @@ void vga_set_cursor(uint8_t x, uint8_t y);
 
 void vga_set_cursor_position(uint16_t p);
 
+void vga_cursor_up(void);
+void vga_cursor_down(void);
+void vga_cursor_left(void);
+void vga_cursor_right(void);
+
 uint16_t vga_get_cursor_position(void);
 
 uint8_t vga_get_cursor_x(void);

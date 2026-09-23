@@ -29,6 +29,7 @@ void tty_init(tty_t *tty) {
 
     tty->input_length = 0;
     tty->buffer_index = 0;
+    tty->cursor_index = 0;
 
     tty->modifiers = MOD_NONE;
 
@@ -88,6 +89,7 @@ void tty_clear(tty_t *tty) {
         tty->buffer[i] = '\0';
 
     tty->buffer_index = 0;
+    tty->cursor_index = 0;
     tty->input_length = 0;
     tty->line_ready = false;
 }
@@ -200,19 +202,48 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
 
     switch (event->key) {
 
+    case KEY_LEFT:
+        if (tty->cursor_index > 0) {
+            tty->cursor_index--;
+            vga_cursor_left();
+        }
+        return;
+
+    case KEY_RIGHT:
+        if (tty->cursor_index < tty->buffer_index) {
+            tty->cursor_index++;
+            vga_cursor_right();
+        }
+        return;
+
     case KEY_BACKSPACE:
 
-        if (tty->buffer_index > 0) {
+        if (tty->cursor_index > 0) {
+            uint16_t delete_position = vga_get_cursor_position();
 
+            for (int i = tty->cursor_index - 1; i < tty->buffer_index; i++)
+                tty->buffer[i] = tty->buffer[i + 1];
+
+            tty->cursor_index--;
             tty->buffer_index--;
 
             if (tty->input_length > 0)
                 tty->input_length--;
 
-            tty->buffer[tty->buffer_index] = '\0';
+            if (tty->echo) {
+                vga_cursor_left();
+                delete_position = vga_get_cursor_position();
 
-            if (tty->echo)
-                tty->method.write(tty, "\b");
+                for (int i = tty->cursor_index; i < tty->buffer_index; i++) {
+                    char output[2] = {tty->buffer[i], '\0'};
+                    tty->console->method.write(tty->console, output);
+                }
+
+                vga_print_char(' ');
+                vga_set_cursor_position(delete_position);
+            }
+
+            tty->buffer[tty->buffer_index] = '\0';
         }
 
         return;
@@ -221,10 +252,16 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
 
         if (tty->buffer_index < TTY_BUFFER_SIZE - 1) {
 
+            if (tty->echo) {
+                vga_set_cursor_position(vga_get_cursor_position() +
+                                         (tty->buffer_index - tty->cursor_index));
+            }
+
             tty->buffer[tty->buffer_index++] = '\n';
             tty->buffer[tty->buffer_index] = '\0';
 
             tty->input_length++;
+            tty->cursor_index = tty->buffer_index;
             tty->line_ready = true;
 
             if (tty->echo)
@@ -243,8 +280,13 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
         return;
 
     if (tty->buffer_index < TTY_BUFFER_SIZE - 1) {
+        uint16_t cursor_position = vga_get_cursor_position();
 
-        tty->buffer[tty->buffer_index++] = c;
+        for (int i = tty->buffer_index; i > tty->cursor_index; i--)
+            tty->buffer[i] = tty->buffer[i - 1];
+
+        tty->buffer[tty->cursor_index++] = c;
+        tty->buffer_index++;
         tty->buffer[tty->buffer_index] = '\0';
 
         tty->input_length++;
@@ -252,6 +294,13 @@ void tty_handle_event(tty_t *tty, const input_event_t *event)
         if (tty->echo) {
             char output[2] = {c, '\0'};
             tty->console->method.write(tty->console, output);
+
+            for (int i = tty->cursor_index; i < tty->buffer_index; i++) {
+                output[0] = tty->buffer[i];
+                tty->console->method.write(tty->console, output);
+            }
+
+            vga_set_cursor_position(cursor_position + 1);
         }
     }
 }

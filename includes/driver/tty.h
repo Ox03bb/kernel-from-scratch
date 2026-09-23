@@ -39,6 +39,7 @@ typedef struct tty_t {
 
     int input_length;
     int buffer_index;
+    int cursor_index;
     char buffer[TTY_BUFFER_SIZE];
 
     keyboard_modifiers_t modifiers;

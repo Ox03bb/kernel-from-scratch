@@ -157,10 +157,10 @@ void vga_set_color(uint8_t foreground, uint8_t background) {
 // Cursor Enabling
 void vga_cursor_enable(void) {
     outb(VGA_INDEX_PORT, VGA_CURSOR_START);
-    outb(VGA_DATA_PORT, 0x06);
+    outb(VGA_DATA_PORT, 0x00);
 
     outb(VGA_INDEX_PORT, VGA_CURSOR_END);
-    outb(VGA_DATA_PORT, 0x07);
+    outb(VGA_DATA_PORT, 0x0F);
 }
 
 void vga_cursor_disable(void) {
@@ -198,6 +198,34 @@ void vga_set_cursor_position(uint16_t p) {
     cursor_position = p;
     cursor_x = p % VGA_WIDTH;
     cursor_y = p / VGA_WIDTH;
+}
+
+void vga_cursor_up(void) {
+    if (cursor_position < VGA_WIDTH)
+        return;
+
+    vga_set_cursor_position(cursor_position - VGA_WIDTH);
+}
+
+void vga_cursor_down(void) {
+    if (cursor_position + VGA_WIDTH >= VGA_RES)
+        return;
+
+    vga_set_cursor_position(cursor_position + VGA_WIDTH);
+}
+
+void vga_cursor_left(void) {
+    if (cursor_position == 0)
+        return;
+
+    vga_set_cursor_position(cursor_position - 1);
+}
+
+void vga_cursor_right(void) {
+    if (cursor_position + 1 >= VGA_RES)
+        return;
+
+    vga_set_cursor_position(cursor_position + 1);
 }
 
 uint16_t vga_get_cursor_position(void) {
