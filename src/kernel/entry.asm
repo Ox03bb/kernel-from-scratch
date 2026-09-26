@@ -10,7 +10,7 @@ extern kernel_main
 
 _start:
     cli
-    call print_kernel_loaded
+    ; call print_kernel_loaded
     call kernel_main
 
     cli
@@ -21,23 +21,23 @@ _start:
 ; ----------------------------------------
 ; Print "Kernel is loaded"
 ; ----------------------------------------
-print_kernel_loaded:
-    pushad
+; print_kernel_loaded:
+;     pushad
 
-    mov edi, 0xB8000          ; VGA text buffer
-    mov esi, kernel_msg
+;     mov edi, 0xB8000          ; VGA text buffer
+;     mov esi, kernel_msg
 
-.print:
-    lodsb                     ; AL = *ESI++
-    test al, al
-    jz .done
+; .print:
+;     lodsb                     ; AL = *ESI++
+;     test al, al
+;     jz .done
 
-    mov ah, 0x0F              ; White text on black background
-    stosw                     ; Write AX (character + attribute)
-    jmp .print
+;     mov ah, 0x0F              ; White text on black background
+;     stosw                     ; Write AX (character + attribute)
+;     jmp .print
 
-.done:
-    popad
-    ret
+; .done:
+;     popad
+;     ret
 
-kernel_msg db "Hello from kernel!", 0
+; kernel_msg db "Hello from kernel!", 0

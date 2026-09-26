@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int strlen(char *str);
+int strlen(const char *str);
 
 void strcpy(char *dest, char *src);
 void strcat(char *dest, const char *src);

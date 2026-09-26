@@ -18,7 +18,6 @@ void keyboard_irq_handler(void) {
     }
 
     uint8_t data = ps2_read();
-
     keyboard_process_scancode(data);
 }
 
@@ -105,70 +104,50 @@ void keyboard_process_scancode(uint8_t data) {
 void keyboard_handle_key(keycode_t key, key_action_t action) {
     keyboard_update_state(key, action);
 
-    /*
-     * Key release events are used only to update the keyboard state.
-     */
-    if (action != KEY_PRESSED) {
-        return;
-    }
-
     input_event_t input = {0};
-
-    /* ---------------------------------------------------------------------- */
-    /* Character input                                                        */
-    /* ---------------------------------------------------------------------- */
+    input.type = INPUT_EVENT_KEY;
+    input.key = key;
+    input.action = action;
+    input.shift = keyboard_state.left_shift || keyboard_state.right_shift;
+    input.ctrl = keyboard_state.left_ctrl || keyboard_state.right_ctrl;
+    input.alt = keyboard_state.left_alt || keyboard_state.right_alt;
 
     char character = keyboard_translate(key, &keyboard_state);
-
     if (character != '\0') {
-
-        input.type = INPUT_CHAR;
+        input.type = INPUT_EVENT_CHAR;
         input.character = character;
-
         input_queue_push(input);
-
         return;
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* Special keys                                                           */
-    /* ---------------------------------------------------------------------- */
-
     switch (key) {
-
     case KEY_ENTER:
-        input.type = INPUT_ENTER;
-        break;
-
     case KEY_BACKSPACE:
-        input.type = INPUT_BACKSPACE;
-        break;
-
     case KEY_TAB:
-        input.type = INPUT_TAB;
-        break;
-
     case KEY_UP:
-        input.type = INPUT_UP;
-        break;
-
     case KEY_DOWN:
-        input.type = INPUT_DOWN;
-        break;
-
     case KEY_LEFT:
-        input.type = INPUT_LEFT;
-        break;
-
     case KEY_RIGHT:
-        input.type = INPUT_RIGHT;
-        break;
+    case KEY_HOME:
+    case KEY_END:
+    case KEY_DELETE:
+    case KEY_ESC:
+    case KEY_LEFT_SHIFT:
+    case KEY_RIGHT_SHIFT:
+    case KEY_LEFT_CTRL:
+    case KEY_RIGHT_CTRL:
+    case KEY_LEFT_ALT:
+    case KEY_RIGHT_ALT:
+    case KEY_CAPS_LOCK:
+    case KEY_NUM_LOCK:
+    case KEY_SCROLL_LOCK:
+        input.character = '\0';
+        input_queue_push(input);
+        return;
 
     default:
         return;
     }
-
-    input_queue_push(input);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -34,31 +34,31 @@ int 0x13
 
 jc disk_read_error
 
-jmp start
+; jmp start
 
-msg db 13, 10,"Welcom to my bootLoader", 13, 10
-    db "press any key to continue...", 0
+; msg db 13, 10,"Welcom to my bootLoader", 13, 10
+;     db "press any key to continue...", 0
 
-s_msg db 13,10,10,"starting...",0    
-
-
-
-%include "src/bootloader/utils.asm"
+; s_msg db 13,10,10,"starting...",0    
 
 
-start:
 
-call clear_screen
+; %include "src/bootloader/utils.asm"
 
 
-MOV si, msg
-call print
+; start:
 
-call get_key
+; call clear_screen
 
-MOV si, s_msg
-call print
-jmp PM_start
+
+; MOV si, msg
+; call print
+
+; call get_key
+
+; MOV si, s_msg
+; call print
+; jmp PM_start
 
 
 PM_start:

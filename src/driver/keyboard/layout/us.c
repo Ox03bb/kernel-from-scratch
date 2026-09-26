@@ -103,7 +103,7 @@ const keyboard_layout_t keyboard_layout_us = {
 
 char keyboard_layout_translate(const keyboard_layout_t *layout, keycode_t key,
                                const keyboard_state_t *state) {
-    if (key >= KEY_COUNT) {
+    if (layout == NULL || key >= KEY_COUNT || state == NULL) {
         return '\0';
     }
 
@@ -114,8 +114,10 @@ char keyboard_layout_translate(const keyboard_layout_t *layout, keycode_t key,
     }
 
     bool shifted = state->left_shift || state->right_shift;
+    bool caps_active =
+        state->caps_lock && ((key >= KEY_A && key <= KEY_Z) || (key >= KEY_0 && key <= KEY_9));
 
-    if (shifted) {
+    if (shifted ^ caps_active) {
         return entry.shift;
     }
 

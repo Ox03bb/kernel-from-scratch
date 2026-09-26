@@ -2,7 +2,7 @@
 #include "types.h"
 #include <stddef.h>
 
-int strlen(char *str) {
+int strlen(const char *str) {
     int len = 0;
     while (*str++) {
         len++;
@@ -14,24 +14,23 @@ char *int2str(int num) {
     static char str[33];
 
     char *p = str + 32;
-
     *p = '\0';
 
     if (num == 0) {
         *(--p) = '0';
-    } else {
-        bool negative = num < 0;
+        return p;
+    }
 
-        if (negative)
-            num = -num;
+    bool negative = num < 0;
+    uint32_t value = (uint32_t)(negative ? -(num + 1) + 1 : num);
 
-        while (num > 0) {
-            *(--p) = (num % 10) + '0';
-            num /= 10;
-        }
+    while (value > 0) {
+        *(--p) = (char)('0' + (value % 10));
+        value /= 10;
+    }
 
-        if (negative)
-            *(--p) = '-';
+    if (negative) {
+        *(--p) = '-';
     }
 
     return p;

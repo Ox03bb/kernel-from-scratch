@@ -6,38 +6,38 @@
 #include "ps2.h"
 #include "types.h"
 
-#define KEYBOARD_EVENT_QUEUE_SIZE 256
-
-typedef struct {
-    key_event_t events[KEYBOARD_EVENT_QUEUE_SIZE];
-    uint32_t head;
-    uint32_t tail;
-} keyboard_event_queue_t;
-
-extern keyboard_event_queue_t keyboard_queue;
+#define INPUT_EVENT_QUEUE_SIZE 256
 
 typedef enum {
-    INPUT_CHAR,
-    INPUT_ENTER,
-    INPUT_BACKSPACE,
-    INPUT_TAB,
-    INPUT_UP,
-    INPUT_DOWN,
-    INPUT_LEFT,
-    INPUT_RIGHT,
-} input_type_t;
+    INPUT_EVENT_KEY,
+    INPUT_EVENT_CHAR,
+} input_event_type_t;
 
 typedef struct {
-    input_type_t type;
+    input_event_type_t type;
+    keycode_t key;
+    key_action_t action;
+    bool shift;
+    bool ctrl;
+    bool alt;
     char character;
 } input_event_t;
 
+typedef struct {
+    input_event_t events[INPUT_EVENT_QUEUE_SIZE];
+    uint32_t head;
+    uint32_t tail;
+} input_event_queue_t;
+
+extern input_event_queue_t input_event_queue;
+
+void input_queue_init(void);
 void input_queue_push(input_event_t event);
-void input_queue_pop(input_event_t *event);
+bool input_queue_pop(input_event_t *event);
+bool input_queue_is_empty(void);
+bool input_queue_is_full(void);
 void input_queue_print();
 void input_queue_print_last();
-void input_queue_clear();
-
-extern input_event_t input_queue[KEYBOARD_EVENT_QUEUE_SIZE];
+void input_queue_clear(void);
 
 #endif

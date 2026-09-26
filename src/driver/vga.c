@@ -1,4 +1,5 @@
 #include "vga.h"
+#include "string.h"
 #include "utils.h"
 
 static uint8_t cursor_x = 0;
@@ -100,9 +101,21 @@ void vga_print_char(char c) {
         break;
 
     default:
+        if (cursor_position >= VGA_RES) {
+            vga_scroll_up();
+            cursor_position = (VGA_HEIGHT - 1) * VGA_WIDTH;
+        }
+
         vga_buf[cursor_position] = ((uint16_t)current_color << 8) | (uint8_t)c;
 
-        vga_set_cursor_position(cursor_position + 1);
+        if (cursor_position + 1 >= VGA_RES) {
+            vga_scroll_up();
+            cursor_position = (VGA_HEIGHT - 1) * VGA_WIDTH;
+        } else {
+            cursor_position++;
+        }
+
+        vga_set_cursor_position(cursor_position);
         break;
     }
 }
@@ -144,10 +157,10 @@ void vga_set_color(uint8_t foreground, uint8_t background) {
 // Cursor Enabling
 void vga_cursor_enable(void) {
     outb(VGA_INDEX_PORT, VGA_CURSOR_START);
-    outb(VGA_DATA_PORT, 0x06);
+    outb(VGA_DATA_PORT, 0x00);
 
     outb(VGA_INDEX_PORT, VGA_CURSOR_END);
-    outb(VGA_DATA_PORT, 0x07);
+    outb(VGA_DATA_PORT, 0x0F);
 }
 
 void vga_cursor_disable(void) {
@@ -172,6 +185,9 @@ void vga_set_cursor(uint8_t x, uint8_t y) {
 }
 
 void vga_set_cursor_position(uint16_t p) {
+    if (p >= VGA_RES) {
+        p = VGA_RES - 1;
+    }
 
     outb(VGA_INDEX_PORT, VGA_CURSOR_HIGH);
     outb(VGA_DATA_PORT, (p >> 8));
@@ -182,6 +198,34 @@ void vga_set_cursor_position(uint16_t p) {
     cursor_position = p;
     cursor_x = p % VGA_WIDTH;
     cursor_y = p / VGA_WIDTH;
+}
+
+void vga_cursor_up(void) {
+    if (cursor_position < VGA_WIDTH)
+        return;
+
+    vga_set_cursor_position(cursor_position - VGA_WIDTH);
+}
+
+void vga_cursor_down(void) {
+    if (cursor_position + VGA_WIDTH >= VGA_RES)
+        return;
+
+    vga_set_cursor_position(cursor_position + VGA_WIDTH);
+}
+
+void vga_cursor_left(void) {
+    if (cursor_position == 0)
+        return;
+
+    vga_set_cursor_position(cursor_position - 1);
+}
+
+void vga_cursor_right(void) {
+    if (cursor_position + 1 >= VGA_RES)
+        return;
+
+    vga_set_cursor_position(cursor_position + 1);
 }
 
 uint16_t vga_get_cursor_position(void) {
@@ -242,4 +286,39 @@ void vga_scroll_up(void) {
     }
 
     vga_set_cursor(0, VGA_HEIGHT - 1);
+}
+
+// update specific position
+
+void vga_put_at(uint8_t x, uint8_t y, char c, uint8_t color) {
+    uint16_t index = y * VGA_WIDTH + x;
+
+    vga_buf[index] = ((uint16_t)color << 8) | (uint8_t)c;
+}
+
+void vga_clear_region(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t color) {
+    for (uint8_t row = 0; row < height; row++) {
+        for (uint8_t col = 0; col < width; col++) {
+            vga_put_at(x + col, y + row, ' ', color);
+        }
+    }
+}
+
+void vga_print_at(uint8_t x, uint8_t y, const char *str, uint8_t color) {
+    for (uint32_t i = 0; str[i] != '\0'; i++) {
+        vga_put_at(x + i, y, str[i], color);
+    }
+}
+
+void vga_print_at_center(uint8_t y, const char *str, uint8_t color) {
+    size_t len = strlen(str);
+    if (len > VGA_WIDTH) {
+        len = VGA_WIDTH;
+    }
+
+    uint8_t x = (VGA_WIDTH - len) / 2;
+
+    for (size_t i = 0; i < len; i++) {
+        vga_put_at(x + i, y, str[i], color);
+    }
 }

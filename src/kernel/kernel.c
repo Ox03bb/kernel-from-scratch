@@ -19,6 +19,8 @@
 
 #include "string.h"
 
+#include "driver/tty.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
@@ -57,25 +59,17 @@ void kernel_main() {
 
     KERNEL_INIT("PS/2 controller", ps2_init);
     KERNEL_INIT("Keyboard Driver", init_keyboard);
-
     pic_clear_mask(1);
 
+    tty_t tty0;
+    tty_init(&tty0);
+
+    int i = 0;
     while (1) {
-        input_event_t event;
-        input_queue_pop(&event);
 
-        if (event.type == INPUT_CHAR) {
-            print("Character: ");
-            print_char(event.character);
-            print("\n");
-            event = (input_event_t){0};
-            event.type = 11;
-        }
+        tty_process_events(&tty0);
     }
 
-    for (;;) {
-        asm volatile("hlt");
-    }
-
+    print("[\033[32mready\033[0m] Kernel initialized successfully!\n");
     return;
 }

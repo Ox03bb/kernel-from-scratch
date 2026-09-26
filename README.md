@@ -86,4 +86,3 @@ To install all the required tools, you can use the following commands:
 
 ```bash
     make run
-```

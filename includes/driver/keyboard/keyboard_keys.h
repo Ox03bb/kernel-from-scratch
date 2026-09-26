@@ -185,11 +185,6 @@ typedef enum {
 typedef enum { KEY_PRESSED, KEY_RELEASED } key_action_t;
 
 typedef struct {
-    keycode_t key;
-    key_action_t action;
-} key_event_t;
-
-typedef struct {
     keycode_t normal[256];
     keycode_t extended[256];
 } keyboard_scancode_table_t;
