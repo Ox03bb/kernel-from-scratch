@@ -5,7 +5,8 @@ BIN_DIR := bin
 
 KERNEL_ASM_SRCS := $(shell find $(SRC_DIR) -type f \
 	\( -name '*.asm' -o -name '*.s' \) \
-	! -path '$(SRC_DIR)/bootloader/*')
+	! -path '$(SRC_DIR)/bootloader/*' \
+	! -path '$(SRC_DIR)/mm/physical/pmm.asm')
 KERNEL_C_SRCS := $(shell find $(SRC_DIR) -name '*.c')
 
 BOOT_ASM := $(SRC_DIR)/bootloader/boot.asm
