@@ -47,7 +47,7 @@ void timer_setup() {
     }
 }
 
-void kernel_main() {
+void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("VGA console", vga_init);
 
@@ -64,7 +64,7 @@ void kernel_main() {
     tty_t tty0;
     tty_init(&tty0);
 
-    int i = 0;
+    // int i = 0;
     while (1) {
 
         tty_process_events(&tty0);
