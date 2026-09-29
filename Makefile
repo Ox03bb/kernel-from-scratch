@@ -112,6 +112,10 @@ run: $(OS_BIN)
 		-m 4G \
 		-serial stdio
 
+crun: $(OS_BIN)
+	make clean
+	make run
+
 setup:
 	@if ! docker image inspect $(DOCKER_IMAGE):latest >/dev/null 2>&1; then \
 		docker build -t $(DOCKER_IMAGE):latest .; \
