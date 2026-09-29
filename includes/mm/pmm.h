@@ -1,6 +1,7 @@
 #ifndef PMM_H
 #define PMM_H
 
+#include "kernel.h"
 #include "types.h"
 
 typedef struct {
@@ -15,4 +16,5 @@ typedef struct {
     memory_map_entry_t *entries;
 } memory_map_t;
 
+void pmm_memory_detect(memory_map_t *memory_map, boot_info_t *boot_info, bool verbose);
 #endif

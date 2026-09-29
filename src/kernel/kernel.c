@@ -21,6 +21,8 @@
 
 #include "driver/tty.h"
 
+#include "mm/pmm.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
@@ -49,6 +51,10 @@ void timer_setup() {
 
 void kernel_main(boot_info_t *boot_info) {
 
+    if (boot_info == NULL) {
+        panic("Boot info is NULL");
+    }
+
     KERNEL_INIT("VGA console", vga_init);
 
     KERNEL_INIT("PIC - Programmable Interrupt Controller", pic_init);
@@ -61,10 +67,13 @@ void kernel_main(boot_info_t *boot_info) {
     KERNEL_INIT("Keyboard Driver", init_keyboard);
     pic_clear_mask(1);
 
+    memory_map_t memory_map;
+
+    pmm_memory_detect(&memory_map, boot_info, true);
+
     tty_t tty0;
     tty_init(&tty0);
 
-    // int i = 0;
     while (1) {
 
         tty_process_events(&tty0);
