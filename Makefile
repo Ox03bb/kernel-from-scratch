@@ -109,7 +109,7 @@ $(OS_BIN): $(BOOT_ASM) $(KERNEL_ASM_SRCS) $(KERNEL_C_SRCS) $(LINKER_SCRIPT)
 run: $(OS_BIN)
 	qemu-system-i386 \
 		-drive file=$(OS_BIN),format=raw \
-		-m 512M \
+		-m 4G \
 		-serial stdio
 
 setup:
@@ -122,7 +122,7 @@ setup:
 debug: $(OS_BIN)
 	qemu-system-i386 \
 		-drive file=$(OS_BIN),format=raw \
-		-m 512M \
+		-m 4G \
 		-serial stdio \
 		-S -s
 
