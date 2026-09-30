@@ -1,6 +1,8 @@
 #include "mm/pmm.h"
 #include "stdio.h"
 
+#include "types.h"
+
 #include "vga.h"
 #include "vga_lib.h"
 
@@ -16,22 +18,97 @@ void memory_detect_verbose(memory_map_t *memory_map) {
         printf(" length=0x");
         print_hex_p((uint32_t)(entry->length >> 32), 1);
         print_hex_p((uint32_t)entry->length, 8);
+        printf(" type=%d ", entry->type);
         printf(" attributes=0x%x ", entry->attributes);
         printf(" size=%d MB\n", (int)size_mb);
     }
 }
 
 void pmm_memory_detect(memory_map_t *memory_map, boot_info_t *boot_info, bool verbose) {
-    memory_map_entry_t *data = (memory_map_entry_t *)boot_info->memory_map_address;
+    memory_map_entry_t *data =
+        (memory_map_entry_t *)boot_info->memory_map_address;
 
     memory_map->count = boot_info->memory_map_count;
     memory_map->entries = data;
 
     print("[\033[34minit\033[0m] ");
     vga_print("Memory detection\n");
+
     if (verbose) {
         memory_detect_verbose(memory_map);
     } else {
         print_at_end("... Ok\n", GREEN);
     }
+}
+
+void pmm_memory_map(memory_map_t *mm, uint8_t *bitmap) {
+    const uint64_t bitmap_frame_count = BITMAP_SIZE * 8ULL;
+
+    for (uint32_t i = 0; i < mm->count; i++) {
+        memory_map_entry_t *entry = &mm->entries[i];
+
+        if (entry->type != TYPE_USABLE)
+            continue;
+
+        uint64_t first_frame = entry->base / PAGE_SIZE;
+        uint64_t frame_count = entry->length / PAGE_SIZE;
+
+        if (first_frame >= bitmap_frame_count)
+            continue;
+
+        if (frame_count > bitmap_frame_count - first_frame)
+            frame_count = bitmap_frame_count - first_frame;
+
+        uint64_t end_frame = first_frame + frame_count;
+
+        while (first_frame < end_frame && first_frame % 8 != 0) {
+            bitmap[first_frame / 8] &=
+                (uint8_t)~(1U << (first_frame % 8));
+            first_frame++;
+        }
+
+        while (first_frame + 8 <= end_frame) {
+            bitmap[first_frame / 8] = 0;
+            first_frame += 8;
+        }
+
+        while (first_frame < end_frame) {
+            bitmap[first_frame / 8] &=
+                (uint8_t)~(1U << (first_frame % 8));
+            first_frame++;
+        }
+    }
+}
+
+void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr) {
+    uint64_t first_frame = start_addr / PAGE_SIZE;
+    uint64_t end_frame = (end_addr + PAGE_SIZE - 1) / PAGE_SIZE;
+
+    for (uint64_t frame = first_frame; frame < end_frame; frame++) {
+        bitmap[frame / 8] |=
+            (uint8_t)(1U << (frame % 8));
+    }
+}
+
+void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count) {
+    uint64_t first_frame = start_addr / PAGE_SIZE;
+
+    for (uint64_t i = 0; i < (uint64_t)frame_count; i++) {
+        uint64_t frame = first_frame + i;
+
+        bitmap[frame / 8] |=
+            (uint8_t)(1U << (frame % 8));
+    }
+}
+
+bool ppm_check_mm(uint8_t *bitmap, uint32_t addr) {
+    uint64_t frame = addr / PAGE_SIZE;
+
+    return (bitmap[frame / 8] &
+            (1U << (frame % 8))) != 0;
+}
+
+bool ppm_check_mm_index(uint8_t *bitmap, uint32_t index) {
+    return (bitmap[index / 8] &
+            (1U << (index % 8))) != 0;
 }

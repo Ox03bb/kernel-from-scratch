@@ -3,20 +3,16 @@
 #include "idt.h"
 
 #include "pic.h"
-#include "pit.h"
 #include "ps2.h"
-#include "timer.h"
+
+#include "utils/kernal_utils.h"
 
 #include "keyboard.h"
 #include "vga.h"
 
-#include "vga_lib.h"
-
 #include "panic.h"
 
 #include "stdio.h"
-#include "utils.h"
-
 #include "string.h"
 
 #include "driver/tty.h"
@@ -26,28 +22,9 @@
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
-#define TIMER_FREQ 1000 // 1000 Hz
-
-void KERNEL_INIT(const char *name, void (*init_function)(void)) {
-    print("[\033[34minit\033[0m] ");
-    vga_print(name);
-
-    init_function();
-
-    print_at_end("... Ok\n", GREEN);
-}
-
-void timer_setup() {
-    pic_clear_mask(0);
-    timer_init(TIMER_FREQ); // 1000 Hz
-
-    sti();
-
-    for (int i = 0; i < 33; i++) {
-        vga_print(".");
-        timer_sleep(0.02);
-    }
-}
+static uint8_t pmm_bitmap[BITMAP_SIZE];
+extern uintptr_t kernel_start_addr;
+extern uintptr_t kernel_end_addr;
 
 void kernel_main(boot_info_t *boot_info) {
 
@@ -68,8 +45,15 @@ void kernel_main(boot_info_t *boot_info) {
     pic_clear_mask(1);
 
     memory_map_t memory_map;
-
     pmm_memory_detect(&memory_map, boot_info, true);
+    memset(pmm_bitmap, 0xFF, sizeof(pmm_bitmap));
+    
+    pmm_memory_map(&memory_map, pmm_bitmap);
+    KERNEL_INIT_P("PPM - Physical Memory Manager");
+
+    pmm_reserve(pmm_bitmap, kernel_start_addr, kernel_end_addr);
+    KERNEL_INIT_P("Reserved kernel memory");
+
 
     tty_t tty0;
     tty_init(&tty0);
