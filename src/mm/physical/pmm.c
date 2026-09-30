@@ -25,8 +25,7 @@ void memory_detect_verbose(memory_map_t *memory_map) {
 }
 
 void pmm_memory_detect(memory_map_t *memory_map, boot_info_t *boot_info, bool verbose) {
-    memory_map_entry_t *data =
-        (memory_map_entry_t *)boot_info->memory_map_address;
+    memory_map_entry_t *data = (memory_map_entry_t *)boot_info->memory_map_address;
 
     memory_map->count = boot_info->memory_map_count;
     memory_map->entries = data;
@@ -62,8 +61,7 @@ void pmm_memory_map(memory_map_t *mm, uint8_t *bitmap) {
         uint64_t end_frame = first_frame + frame_count;
 
         while (first_frame < end_frame && first_frame % 8 != 0) {
-            bitmap[first_frame / 8] &=
-                (uint8_t)~(1U << (first_frame % 8));
+            bitmap[first_frame / 8] &= (uint8_t)~(1U << (first_frame % 8));
             first_frame++;
         }
 
@@ -73,8 +71,7 @@ void pmm_memory_map(memory_map_t *mm, uint8_t *bitmap) {
         }
 
         while (first_frame < end_frame) {
-            bitmap[first_frame / 8] &=
-                (uint8_t)~(1U << (first_frame % 8));
+            bitmap[first_frame / 8] &= (uint8_t)~(1U << (first_frame % 8));
             first_frame++;
         }
     }
@@ -85,8 +82,7 @@ void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr) {
     uint64_t end_frame = (end_addr + PAGE_SIZE - 1) / PAGE_SIZE;
 
     for (uint64_t frame = first_frame; frame < end_frame; frame++) {
-        bitmap[frame / 8] |=
-            (uint8_t)(1U << (frame % 8));
+        bitmap[frame / 8] |= (uint8_t)(1U << (frame % 8));
     }
 }
 
@@ -96,19 +92,16 @@ void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count) {
     for (uint64_t i = 0; i < (uint64_t)frame_count; i++) {
         uint64_t frame = first_frame + i;
 
-        bitmap[frame / 8] |=
-            (uint8_t)(1U << (frame % 8));
+        bitmap[frame / 8] |= (uint8_t)(1U << (frame % 8));
     }
 }
 
 bool ppm_check_mm(uint8_t *bitmap, uint32_t addr) {
     uint64_t frame = addr / PAGE_SIZE;
 
-    return (bitmap[frame / 8] &
-            (1U << (frame % 8))) != 0;
+    return (bitmap[frame / 8] & (1U << (frame % 8))) != 0;
 }
 
 bool ppm_check_mm_index(uint8_t *bitmap, uint32_t index) {
-    return (bitmap[index / 8] &
-            (1U << (index % 8))) != 0;
+    return (bitmap[index / 8] & (1U << (index % 8))) != 0;
 }

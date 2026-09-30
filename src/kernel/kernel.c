@@ -47,13 +47,12 @@ void kernel_main(boot_info_t *boot_info) {
     memory_map_t memory_map;
     pmm_memory_detect(&memory_map, boot_info, true);
     memset(pmm_bitmap, 0xFF, sizeof(pmm_bitmap));
-    
+
     pmm_memory_map(&memory_map, pmm_bitmap);
     KERNEL_INIT_P("PPM - Physical Memory Manager");
 
     pmm_reserve(pmm_bitmap, kernel_start_addr, kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
-
 
     tty_t tty0;
     tty_init(&tty0);
