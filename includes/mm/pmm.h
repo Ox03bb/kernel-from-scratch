@@ -4,9 +4,9 @@
 #include "kernel.h"
 #include "types.h"
 
-#define PAGE_SIZE       4096
+#define FRAME_SIZE      4096
 #define MAX_MEMORY_SIZE 0x100000000ULL // 4GB
-#define MAX_PAGES       (MAX_MEMORY_SIZE / PAGE_SIZE)
+#define MAX_PAGES       (MAX_MEMORY_SIZE / FRAME_SIZE)
 #define BITMAP_SIZE     (MAX_PAGES / 8)
 
 #define TYPE_USABLE   0x01
@@ -32,7 +32,13 @@ void pmm_memory_map(memory_map_t *memory_map, uint8_t *bitmap);
 void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr);
 void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count);
 
-bool ppm_check_mm(uint8_t *bitmap, uint32_t addr);
-bool ppm_check_mm_index(uint8_t *bitmap, uint32_t index);
+bool pmm_check_mm(uint8_t *bitmap, uint32_t addr);
+bool pmm_check_mm_index(uint8_t *bitmap, uint32_t index);
+
+uintptr_t pmm_alloc_frame(uint8_t *bitmap);
+uintptr_t pmm_alloc_n_frame(uint8_t *bitmap, int count);
+
+void pmm_free_frame(uint8_t *bitmap, uintptr_t address);
+void pmm_free_n_frame(uint8_t *bitmap, uintptr_t address, int count);
 
 #endif

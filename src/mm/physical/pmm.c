@@ -6,6 +6,8 @@
 #include "vga.h"
 #include "vga_lib.h"
 
+// in memory map 0 mean usable and 1 mean reserved
+
 void memory_detect_verbose(memory_map_t *memory_map) {
     for (uint32_t i = 0; i < memory_map->count; i++) {
         memory_map_entry_t *entry = &memory_map->entries[i];
@@ -49,8 +51,8 @@ void pmm_memory_map(memory_map_t *mm, uint8_t *bitmap) {
         if (entry->type != TYPE_USABLE)
             continue;
 
-        uint64_t first_frame = entry->base / PAGE_SIZE;
-        uint64_t frame_count = entry->length / PAGE_SIZE;
+        uint64_t first_frame = entry->base / FRAME_SIZE;
+        uint64_t frame_count = entry->length / FRAME_SIZE;
 
         if (first_frame >= bitmap_frame_count)
             continue;
@@ -78,8 +80,8 @@ void pmm_memory_map(memory_map_t *mm, uint8_t *bitmap) {
 }
 
 void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr) {
-    uint64_t first_frame = start_addr / PAGE_SIZE;
-    uint64_t end_frame = (end_addr + PAGE_SIZE - 1) / PAGE_SIZE;
+    uint64_t first_frame = start_addr / FRAME_SIZE;
+    uint64_t end_frame = (end_addr + FRAME_SIZE - 1) / FRAME_SIZE;
 
     for (uint64_t frame = first_frame; frame < end_frame; frame++) {
         bitmap[frame / 8] |= (uint8_t)(1U << (frame % 8));
@@ -87,7 +89,7 @@ void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr) {
 }
 
 void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count) {
-    uint64_t first_frame = start_addr / PAGE_SIZE;
+    uint64_t first_frame = start_addr / FRAME_SIZE;
 
     for (uint64_t i = 0; i < (uint64_t)frame_count; i++) {
         uint64_t frame = first_frame + i;
@@ -96,12 +98,83 @@ void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count) {
     }
 }
 
-bool ppm_check_mm(uint8_t *bitmap, uint32_t addr) {
-    uint64_t frame = addr / PAGE_SIZE;
+bool pmm_check_mm(uint8_t *bitmap, uint32_t addr) {
+    uint64_t frame = addr / FRAME_SIZE;
 
     return (bitmap[frame / 8] & (1U << (frame % 8))) != 0;
 }
 
-bool ppm_check_mm_index(uint8_t *bitmap, uint32_t index) {
+bool pmm_check_mm_index(uint8_t *bitmap, uint32_t index) {
     return (bitmap[index / 8] & (1U << (index % 8))) != 0;
+}
+
+// helper
+
+int find_n_usable_space(uint8_t *bitmap, int count) {
+    int consecutive = 0;
+
+    for (int i = 0; i < BITMAP_SIZE; i++) {
+        uint8_t byte = bitmap[i];
+
+        for (int bit = 0; bit < 8; bit++) {
+            if ((byte & (1U << bit)) == 0) {
+                consecutive++;
+
+                if (consecutive == count)
+                    return (i * 8) + bit - count + 1;
+            } else {
+                consecutive = 0;
+            }
+        }
+    }
+
+    return -1;
+}
+
+// alloc
+uintptr_t pmm_alloc_frame(uint8_t *bitmap) {
+    for (uint32_t i = 0; i < BITMAP_SIZE; i++) {
+        if (bitmap[i] != 0xFF) {
+            uint8_t n = __builtin_ctz((uint8_t)~bitmap[i]);
+
+            bitmap[i] |= (uint8_t)(1U << n);
+
+            return ((i * 8) + n) * FRAME_SIZE;
+        }
+    }
+
+    return 0;
+}
+
+uintptr_t pmm_alloc_n_frame(uint8_t *bitmap, int count) {
+    int frame = find_n_usable_space(bitmap, count);
+
+    if (frame < 0)
+        return 0;
+
+    for (int i = 0; i < count; i++) {
+        int current_frame = frame + i;
+
+        bitmap[current_frame / 8] |= (uint8_t)(1U << (current_frame % 8));
+    }
+
+    return (uintptr_t)frame * FRAME_SIZE;
+}
+
+// free
+
+void pmm_free_frame(uint8_t *bitmap, uintptr_t addr) {
+    size_t frame = addr / FRAME_SIZE;
+
+    bitmap[frame / 8] &= (uint8_t)~(1U << (frame % 8));
+}
+
+void pmm_free_n_frame(uint8_t *bitmap, uintptr_t address, int count) {
+    int frame = address / FRAME_SIZE;
+
+    for (int i = 0; i < count; i++) {
+        int current_frame = frame + i;
+
+        bitmap[current_frame / 8] &= (uint8_t)~(1U << (current_frame % 8));
+    }
 }

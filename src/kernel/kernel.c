@@ -51,15 +51,22 @@ void kernel_main(boot_info_t *boot_info) {
     pmm_memory_map(&memory_map, pmm_bitmap);
     KERNEL_INIT_P("PPM - Physical Memory Manager");
 
-    pmm_reserve(pmm_bitmap, kernel_start_addr, kernel_end_addr);
+    pmm_reserve(pmm_bitmap, (uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
+
+    uintptr_t ptr = pmm_alloc_n_frame(pmm_bitmap, 100);
+    printf("%x\n", ptr);
+    // ptr -= 0x1000;
+    bool c = pmm_check_mm(pmm_bitmap, ptr);
+
+    printf("%bl", c);
 
     tty_t tty0;
     tty_init(&tty0);
 
     while (1) {
 
-        tty_process_events(&tty0);
+        // tty_process_events(&tty0);
     }
 
     print("[\033[32mready\033[0m] Kernel initialized successfully!\n");

@@ -407,8 +407,16 @@ char *vformatter(const char *format, va_list args) {
         }
 
         case 'b': {
-            uint32_t number = va_arg(args, uint32_t);
-            char *str = uint2str(number, 2, false);
+            char *str;
+            if (format[1] == 'l') {
+                /* _Bool is promoted to int when passed through varargs. */
+                int value = va_arg(args, int);
+                str = value ? "true" : "false";
+                format++;
+            } else {
+                uint32_t number = va_arg(args, uint32_t);
+                str = uint2str(number, 2, false);
+            }
             size_t len = strlen(str);
             if (used + len + 1 < sizeof(buffer)) {
                 strcat(buffer, str);
