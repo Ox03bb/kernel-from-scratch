@@ -7,6 +7,8 @@ SECTIONS
 {
     . = 0x00010000;
 
+    kernel_start_addr = .;
+
     .text : ALIGN(16)
     {
         KEEP(*(.text.start))
@@ -32,4 +34,7 @@ SECTIONS
         *(.bss)
         *(.bss.*)
     }
+
+    kernel_end_addr = .;
+
 }

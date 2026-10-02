@@ -4,8 +4,8 @@
 #include "vga.h"
 #include "vga_lib.h"
 
-#include "string.h"
 #include "keyboard/event_queue.h"
+#include "string.h"
 
 #include "stdio.h"
 
@@ -280,6 +280,19 @@ void println(const char *str) {
 void print_char(char c) { vga_print_char(c); }
 
 void print_hex(uint32_t value) { vga_print_hex(value); }
+void print_hex_p(uint32_t value, uint8_t padding) {
+
+    char *str = uint2str(value, 16, false);
+    size_t len = strlen(str);
+
+    if (len < padding) {
+        for (size_t i = 0; i < padding - len; i++) {
+            vga_print_char('0');
+        }
+    }
+
+    vga_print(str);
+}
 
 void print_at_end(const char *str, uint8_t color) { vga_print_at_end_c(str, color); }
 
@@ -394,8 +407,16 @@ char *vformatter(const char *format, va_list args) {
         }
 
         case 'b': {
-            uint32_t number = va_arg(args, uint32_t);
-            char *str = uint2str(number, 2, false);
+            char *str;
+            if (format[1] == 'l') {
+                /* _Bool is promoted to int when passed through varargs. */
+                int value = va_arg(args, int);
+                str = value ? "true" : "false";
+                format++;
+            } else {
+                uint32_t number = va_arg(args, uint32_t);
+                str = uint2str(number, 2, false);
+            }
             size_t len = strlen(str);
             if (used + len + 1 < sizeof(buffer)) {
                 strcat(buffer, str);

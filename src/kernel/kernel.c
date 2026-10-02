@@ -3,51 +3,34 @@
 #include "idt.h"
 
 #include "pic.h"
-#include "pit.h"
 #include "ps2.h"
-#include "timer.h"
+
+#include "utils/kernal_utils.h"
 
 #include "keyboard.h"
 #include "vga.h"
 
-#include "vga_lib.h"
-
 #include "panic.h"
 
 #include "stdio.h"
-#include "utils.h"
-
 #include "string.h"
 
 #include "driver/tty.h"
 
+#include "mm/pmm.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
-#define TIMER_FREQ 1000 // 1000 Hz
+static uint8_t pmm_bitmap[BITMAP_SIZE];
+extern uintptr_t kernel_start_addr;
+extern uintptr_t kernel_end_addr;
 
-void KERNEL_INIT(const char *name, void (*init_function)(void)) {
-    print("[\033[34minit\033[0m] ");
-    vga_print(name);
+void kernel_main(boot_info_t *boot_info) {
 
-    init_function();
-
-    print_at_end("... Ok\n", GREEN);
-}
-
-void timer_setup() {
-    pic_clear_mask(0);
-    timer_init(TIMER_FREQ); // 1000 Hz
-
-    sti();
-
-    for (int i = 0; i < 33; i++) {
-        vga_print(".");
-        timer_sleep(0.02);
+    if (boot_info == NULL) {
+        panic("Boot info is NULL");
     }
-}
-
-void kernel_main() {
 
     KERNEL_INIT("VGA console", vga_init);
 
@@ -61,13 +44,29 @@ void kernel_main() {
     KERNEL_INIT("Keyboard Driver", init_keyboard);
     pic_clear_mask(1);
 
+    memory_map_t memory_map;
+    pmm_memory_detect(&memory_map, boot_info, true);
+    memset(pmm_bitmap, 0xFF, sizeof(pmm_bitmap));
+
+    pmm_memory_map(&memory_map, pmm_bitmap);
+    KERNEL_INIT_P("PPM - Physical Memory Manager");
+
+    pmm_reserve(pmm_bitmap, (uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
+    KERNEL_INIT_P("Reserved kernel memory");
+
+    uintptr_t ptr = pmm_alloc_n_frame(pmm_bitmap, 100);
+    printf("%x\n", ptr);
+    // ptr -= 0x1000;
+    bool c = pmm_check_mm(pmm_bitmap, ptr);
+
+    printf("%bl", c);
+
     tty_t tty0;
     tty_init(&tty0);
 
-    int i = 0;
     while (1) {
 
-        tty_process_events(&tty0);
+        // tty_process_events(&tty0);
     }
 
     print("[\033[32mready\033[0m] Kernel initialized successfully!\n");

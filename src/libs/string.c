@@ -2,6 +2,17 @@
 #include "types.h"
 #include <stddef.h>
 
+void *memset(void *dest, int value, size_t count) {
+    unsigned char *bytes = (unsigned char *)dest;
+    unsigned char fill = (unsigned char)value;
+
+    while (count-- > 0) {
+        *bytes++ = fill;
+    }
+
+    return dest;
+}
+
 int strlen(const char *str) {
     int len = 0;
     while (*str++) {

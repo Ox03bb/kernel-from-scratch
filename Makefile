@@ -5,7 +5,8 @@ BIN_DIR := bin
 
 KERNEL_ASM_SRCS := $(shell find $(SRC_DIR) -type f \
 	\( -name '*.asm' -o -name '*.s' \) \
-	! -path '$(SRC_DIR)/bootloader/*')
+	! -path '$(SRC_DIR)/bootloader/*' \
+	! -path '$(SRC_DIR)/mm/physical/pmm.asm')
 KERNEL_C_SRCS := $(shell find $(SRC_DIR) -name '*.c')
 
 BOOT_ASM := $(SRC_DIR)/bootloader/boot.asm
@@ -108,8 +109,12 @@ $(OS_BIN): $(BOOT_ASM) $(KERNEL_ASM_SRCS) $(KERNEL_C_SRCS) $(LINKER_SCRIPT)
 run: $(OS_BIN)
 	qemu-system-i386 \
 		-drive file=$(OS_BIN),format=raw \
-		-m 512M \
+		-m 4G \
 		-serial stdio
+
+crun: $(OS_BIN)
+	make clean
+	make run
 
 setup:
 	@if ! docker image inspect $(DOCKER_IMAGE):latest >/dev/null 2>&1; then \
@@ -121,7 +126,7 @@ setup:
 debug: $(OS_BIN)
 	qemu-system-i386 \
 		-drive file=$(OS_BIN),format=raw \
-		-m 512M \
+		-m 4G \
 		-serial stdio \
 		-S -s
 
