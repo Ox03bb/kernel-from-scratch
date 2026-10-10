@@ -5,11 +5,11 @@ BIN_DIR := bin
 
 KERNEL_ASM_SRCS := $(shell find $(SRC_DIR) -type f \
 	\( -name '*.asm' -o -name '*.s' \) \
-	! -path '$(SRC_DIR)/bootloader/*' \
-	! -path '$(SRC_DIR)/mm/physical/pmm.asm')
+	! -path '$(SRC_DIR)/arch/x86/bootloader/*' \
+	! -path '$(SRC_DIR)/arch/x86/mm/physical/pmm.asm')
 KERNEL_C_SRCS := $(shell find $(SRC_DIR) -name '*.c')
 
-BOOT_ASM := $(SRC_DIR)/bootloader/boot.asm
+BOOT_ASM := $(SRC_DIR)/arch/x86/bootloader/boot.asm
 
 OS_BIN := $(BIN_DIR)/os.bin
 
@@ -95,7 +95,7 @@ $(OS_BIN): $(BOOT_ASM) $(KERNEL_ASM_SRCS) $(KERNEL_C_SRCS) $(LINKER_SCRIPT)
 		\
 		echo "== Assembling bootloader =="; \
 		nasm -f bin \
-			src/bootloader/boot.asm \
+			src/arch/x86/bootloader/boot.asm \
 			-o bin/boot.bin && \
 		\
 		echo "== Creating OS image =="; \

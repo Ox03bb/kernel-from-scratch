@@ -30,7 +30,7 @@ int 0x13
 
 jc disk_read_error
 
-%include "src/mm/physical/pmm.asm"
+%include "src/arch/x86/mm/physical/pmm.asm"
 
 PM_start:
     jmp memory_dump
@@ -46,7 +46,7 @@ PM_start_continue:
 disk_read_error:
     hlt
 
-%include "src/bootloader/gdt.asm"
+%include "src/arch/x86/bootloader/gdt.asm"
 
 ; end:
 ;     JMP $
