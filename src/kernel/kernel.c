@@ -22,7 +22,7 @@
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
-static uint8_t pmm_bitmap[BITMAP_SIZE];
+uint8_t pmm_bitmap[BITMAP_SIZE];
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
 
@@ -48,25 +48,25 @@ void kernel_main(boot_info_t *boot_info) {
     pmm_memory_detect(&memory_map, boot_info, true);
     memset(pmm_bitmap, 0xFF, sizeof(pmm_bitmap));
 
-    pmm_memory_map(&memory_map, pmm_bitmap);
+    pmm_memory_map(&memory_map);
     KERNEL_INIT_P("PPM - Physical Memory Manager");
 
-    pmm_reserve(pmm_bitmap, (uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
+    pmm_reserve((uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
 
-    uintptr_t ptr = pmm_alloc_n_frame(pmm_bitmap, 100);
+    uintptr_t ptr = pmm_alloc_n_frame(100);
     printf("%x\n", ptr);
-    // ptr -= 0x1000;
-    bool c = pmm_check_mm(pmm_bitmap, ptr);
 
-    printf("%bl", c);
+    bool c = pmm_check_mm(ptr);
+
+    printf("%b\n", c);
 
     tty_t tty0;
     tty_init(&tty0);
 
     while (1) {
 
-        // tty_process_events(&tty0);
+        tty_process_events(&tty0);
     }
 
     print("[\033[32mready\033[0m] Kernel initialized successfully!\n");
