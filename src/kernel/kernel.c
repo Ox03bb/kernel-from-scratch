@@ -18,6 +18,8 @@
 #include "driver/tty.h"
 
 #include "mm/pmm.h"
+#include "mm/vmm.h"
+
 
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
@@ -25,6 +27,7 @@
 uint8_t pmm_bitmap[BITMAP_SIZE];
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
+
 
 void kernel_main(boot_info_t *boot_info) {
 
@@ -66,7 +69,7 @@ void kernel_main(boot_info_t *boot_info) {
 
     while (1) {
 
-        tty_process_events(&tty0);
+        // tty_process_events(&tty0);
     }
 
     print("[\033[32mready\033[0m] Kernel initialized successfully!\n");

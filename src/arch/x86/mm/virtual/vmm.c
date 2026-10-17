@@ -111,3 +111,27 @@ int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
 
     return 0;
 }
+
+pte_t *vmm_get_pte(pde_t *directory, vaddr_t va){
+
+    if (directory == NULL)
+        return NULL;
+
+    pde_t *pde = &directory[va.pd];
+
+    if (!pde->p){
+        return NULL;
+    }
+
+    pte_t *page_table = (pte_t *)(pde->addr << 12);
+    pte_t *pte = &page_table[va.pt];
+
+    if (!pte->p)
+        return NULL; 
+
+    return pte;
+}
+
+bool vmm_is_mapped(pde_t *directory, vaddr_t va){
+    return vmm_get_pte(directory, va) != NULL;
+}
