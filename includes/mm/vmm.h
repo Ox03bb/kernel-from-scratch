@@ -22,7 +22,7 @@ typedef union {
         uint32_t pat : 1;   // PAT
         uint32_t g : 1;     // Global
         uint32_t avl : 3;   // Available
-        uint32_t addr : 20; // Physical frame address 
+        uint32_t addr : 20; // Physical frame address
     };
 } pte_t; // page table entry
 
@@ -69,9 +69,15 @@ int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr);
 
 pte_t *vmm_get_pte(pde_t *directory, vaddr_t va);
 
-// vmm_get_physical_address()
-// vmm_load_directory()
-// vmm_page_fault_handler()
-// vmm_init()
+void vmm_invalidate_page(uint32_t virtual_addr);
+
+uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err);
+
+void load_directory(uint32_t page_dir);
+void enable_paging(uint32_t page_dir);
+
+void vmm_page_fault_handler(); // mm/page_fault.c
+
+void vmm_init();
 
 #endif

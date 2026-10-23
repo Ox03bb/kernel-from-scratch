@@ -11,6 +11,10 @@ void enable_paging(uint32_t page_dir) {
                  : "eax", "memory");
 }
 
+void load_directory(uint32_t page_dir) {
+    asm volatile("mov %0, %%cr3\n\t" : : "r"(page_dir) : "eax", "memory");
+}
+
 pde_t *vmm_create_directory() {
     uintptr_t phys_addr = pmm_alloc_frame();
 
@@ -19,11 +23,15 @@ pde_t *vmm_create_directory() {
 
     pde_t *directory = (pde_t *)phys_addr;
 
-    for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {
+    for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {void enable_paging(uint32_t page_dir)
         directory[i].raw = 0;
     }
 
     return directory;
+}
+
+void vmm_invalidate_page(uint32_t virtual_addr) {
+    asm volatile("invlpg (%0)" : : "r"(virtual_addr) : "memory");
 }
 
 pte_t *vmm_create_page_table() {
@@ -93,6 +101,9 @@ int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
     if (directory == NULL)
         return -1;
 
+    if ((virtual_addr & (PAGE_SIZE - 1)) != 0)
+        return -1;
+
     vaddr_t va;
     va.raw = virtual_addr;
 
@@ -109,17 +120,19 @@ int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
 
     pte->raw = 0;
 
+    vmm_invalidate_page(virtual_addr);
+
     return 0;
 }
 
-pte_t *vmm_get_pte(pde_t *directory, vaddr_t va){
+pte_t *vmm_get_pte(pde_t *directory, vaddr_t va) {
 
     if (directory == NULL)
         return NULL;
 
     pde_t *pde = &directory[va.pd];
 
-    if (!pde->p){
+    if (!pde->p) {
         return NULL;
     }
 
@@ -127,11 +140,29 @@ pte_t *vmm_get_pte(pde_t *directory, vaddr_t va){
     pte_t *pte = &page_table[va.pt];
 
     if (!pte->p)
-        return NULL; 
+        return NULL;
 
     return pte;
 }
 
-bool vmm_is_mapped(pde_t *directory, vaddr_t va){
-    return vmm_get_pte(directory, va) != NULL;
+uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err) {
+    *err = false;
+
+    pte_t *p = vmm_get_pte(directory, va);
+    if (p == NULL) {
+        *err = true;
+        return 0;
+    }
+
+    return ((uintptr_t)p->addr << 12) | va.offset;
+}
+
+bool vmm_is_mapped(pde_t *directory, vaddr_t va) { return vmm_get_pte(directory, va) != NULL; }
+
+void vmm_init(){
+    pde_t *pde =vmm_create_directory();
+
+    uintptr_t kernal = kernel_end_addr - kernel_start_addr;    
+
+    int8_t err =  vmm_map_page(pde, uint32_t virtual_addr, uint32_t physical_addr,uint32_t flags);
 }
