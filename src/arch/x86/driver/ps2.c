@@ -1,5 +1,5 @@
 #include "ps2.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 // ---------------------------------------------------------------------
 ps2_status_t ps2_status(void) {

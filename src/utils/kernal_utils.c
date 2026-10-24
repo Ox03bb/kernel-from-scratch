@@ -3,7 +3,7 @@
 #include "pic.h"
 #include "stdio.h"
 #include "timer.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "vga.h"
 #include "vga_lib.h"
 

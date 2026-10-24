@@ -141,7 +141,7 @@ uintptr_t pmm_alloc_frame() {
 
             pmm_bitmap[i] |= (uint8_t)(1U << n);
 
-            return ((i * 8) + n) * FRAME_SIZE;
+            return ((uintptr_t)(i * 8) + n) * FRAME_SIZE;
         }
     }
 

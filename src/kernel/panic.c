@@ -1,5 +1,5 @@
 #include "panic.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "vga.h"
 #include "vga_lib.h"
 

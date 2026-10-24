@@ -1,5 +1,10 @@
 #include "vmm.h"
+#include "mm/utils.h"
 #include "types.h"
+
+#include "panic.h"
+
+#include "stdio.h"
 
 void enable_paging(uint32_t page_dir) {
     asm volatile("mov %0, %%cr3\n\t"
@@ -17,13 +22,14 @@ void load_directory(uint32_t page_dir) {
 
 pde_t *vmm_create_directory() {
     uintptr_t phys_addr = pmm_alloc_frame();
+    printf("\n%x\n", phys_addr);
 
     if (phys_addr == 0)
         return NULL;
 
     pde_t *directory = (pde_t *)phys_addr;
 
-    for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {void enable_paging(uint32_t page_dir)
+    for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {
         directory[i].raw = 0;
     }
 
@@ -159,10 +165,14 @@ uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err) {
 
 bool vmm_is_mapped(pde_t *directory, vaddr_t va) { return vmm_get_pte(directory, va) != NULL; }
 
-void vmm_init(){
-    pde_t *pde =vmm_create_directory();
+void vmm_init(void) {
+    pde_t *kernel_directory = vmm_create_directory();
+    if (kernel_directory == NULL) {
+        panic("Failed to create kernel page directory");
+    }
 
-    uintptr_t kernal = kernel_end_addr - kernel_start_addr;    
+    vmm_map_kernel(kernel_directory);
+    vmm_map_vga(kernel_directory);
 
-    int8_t err =  vmm_map_page(pde, uint32_t virtual_addr, uint32_t physical_addr,uint32_t flags);
+    enable_paging((uint32_t)kernel_directory);
 }

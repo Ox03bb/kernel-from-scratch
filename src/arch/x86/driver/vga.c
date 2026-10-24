@@ -1,6 +1,6 @@
 #include "vga.h"
 #include "string.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static uint8_t cursor_x = 0;
 static uint8_t cursor_y = 0;
