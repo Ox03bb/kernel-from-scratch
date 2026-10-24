@@ -8,6 +8,13 @@
 #define PAGE_ENTRIES 1024
 #define PAGE_SIZE    FRAME_SIZE
 
+#define VMM_PRESENT       (1u << 0)
+#define VMM_WRITABLE      (1u << 1)
+#define VMM_USER          (1u << 2)
+#define VMM_WRITE_THROUGH (1u << 3)
+#define VMM_CACHE_DISABLE (1u << 4)
+#define VMM_GLOBAL        (1u << 8)
+
 typedef union {
     uint32_t raw;
 
