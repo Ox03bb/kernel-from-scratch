@@ -2,7 +2,7 @@
 #include "keyboard.h"
 #include "keyboard/event_queue.h"
 #include "ps2.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 scancode_state_t scan_state = SCAN_STATE_NORMAL;
 

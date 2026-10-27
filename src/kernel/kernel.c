@@ -18,11 +18,13 @@
 #include "driver/tty.h"
 
 #include "mm/pmm.h"
+#include "mm/vmm.h"
 
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
-static uint8_t pmm_bitmap[BITMAP_SIZE];
+uint8_t pmm_bitmap[BITMAP_SIZE];
+
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
 
@@ -48,24 +50,31 @@ void kernel_main(boot_info_t *boot_info) {
     pmm_memory_detect(&memory_map, boot_info, true);
     memset(pmm_bitmap, 0xFF, sizeof(pmm_bitmap));
 
-    pmm_memory_map(&memory_map, pmm_bitmap);
+    pmm_memory_map(&memory_map);
+    pmm_bitmap[0] |= 1U; // reserve the address 0x0 to NULL
     KERNEL_INIT_P("PPM - Physical Memory Manager");
 
-    pmm_reserve(pmm_bitmap, (uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
+    /*
+     * Keep BIOS and bootloader data, including the temporary stack and E820
+     * buffer, out of the physical frame allocator.
+     */
+    pmm_reserve(0, (uintptr_t)&kernel_start_addr);
+    pmm_reserve((uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
 
-    uintptr_t ptr = pmm_alloc_n_frame(pmm_bitmap, 100);
-    printf("%x\n", ptr);
-    // ptr -= 0x1000;
-    bool c = pmm_check_mm(pmm_bitmap, ptr);
+    // uintptr_t ptr = pmm_alloc_n_frame(100);
+    // printf("%x\n", ptr);
 
-    printf("%bl", c);
+    // bool c = pmm_check_mm(ptr);
 
-    tty_t tty0;
-    tty_init(&tty0);
+    // printf("%b\n", c);
+
+    // tty_t tty0;
+    // tty_init(&tty0);
+
+    KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
 
     while (1) {
-
         // tty_process_events(&tty0);
     }
 

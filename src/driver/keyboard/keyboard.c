@@ -1,6 +1,6 @@
 #include "keyboard.h"
 #include "ps2.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #include "keyboard_layout.h"
 

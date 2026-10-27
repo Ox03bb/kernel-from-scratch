@@ -27,18 +27,18 @@ typedef struct {
 } memory_map_t;
 
 void pmm_memory_detect(memory_map_t *memory_map, boot_info_t *boot_info, bool verbose);
-void pmm_memory_map(memory_map_t *memory_map, uint8_t *bitmap);
+void pmm_memory_map(memory_map_t *memory_map);
 
-void pmm_reserve(uint8_t *bitmap, uintptr_t start_addr, uintptr_t end_addr);
-void pmm_reserve_frame(uint8_t *bitmap, uintptr_t start_addr, int frame_count);
+void pmm_reserve(uintptr_t start_addr, uintptr_t end_addr);
+void pmm_reserve_frame(uintptr_t start_addr, int frame_count);
 
-bool pmm_check_mm(uint8_t *bitmap, uint32_t addr);
-bool pmm_check_mm_index(uint8_t *bitmap, uint32_t index);
+bool pmm_check_mm(uint32_t addr);
+bool pmm_check_mm_index(uint32_t index);
 
-uintptr_t pmm_alloc_frame(uint8_t *bitmap);
-uintptr_t pmm_alloc_n_frame(uint8_t *bitmap, int count);
+uintptr_t pmm_alloc_frame();
+uintptr_t pmm_alloc_n_frame(int count);
 
-void pmm_free_frame(uint8_t *bitmap, uintptr_t address);
-void pmm_free_n_frame(uint8_t *bitmap, uintptr_t address, int count);
+void pmm_free_frame(uintptr_t address);
+void pmm_free_n_frame(uintptr_t address, int count);
 
 #endif
