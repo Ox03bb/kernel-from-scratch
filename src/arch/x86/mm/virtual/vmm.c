@@ -9,14 +9,9 @@
 #define BOOTSTRAP_MEMORY_START 0x7000
 #define BOOTSTRAP_MEMORY_END   0xA000
 
-static int vmm_map_bootstrap_memory(pde_t *directory)
-{
-    for (uintptr_t addr = BOOTSTRAP_MEMORY_START;
-         addr < BOOTSTRAP_MEMORY_END;
-         addr += PAGE_SIZE)
-    {
-        if (vmm_map_page(directory, addr, addr, VMM_PRESENT | VMM_WRITABLE) != 0)
-        {
+static int vmm_map_bootstrap_memory(pde_t *directory) {
+    for (uintptr_t addr = BOOTSTRAP_MEMORY_START; addr < BOOTSTRAP_MEMORY_END; addr += PAGE_SIZE) {
+        if (vmm_map_page(directory, addr, addr, VMM_PRESENT | VMM_WRITABLE) != 0) {
             return -1;
         }
     }
@@ -182,10 +177,8 @@ uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err) {
 
 bool vmm_is_mapped(pde_t *directory, vaddr_t va) { return vmm_get_pte(directory, va) != NULL; }
 
-void vmm_init(void)
-{
+void vmm_init(void) {
     pde_t *kernel_directory = vmm_create_directory();
-
 
     if (kernel_directory == NULL)
         panic("Failed to create kernel page directory");

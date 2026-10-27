@@ -20,8 +20,8 @@ int vmm_map_kernel(pde_t *directory) {
     uintptr_t end = (kernel_end + PAGE_SIZE - 1) & ~(uintptr_t)(PAGE_SIZE - 1);
 
     for (uintptr_t addr = start; addr < end; addr += PAGE_SIZE) {
-        if (vmm_map_page(directory, (uint32_t)addr, (uint32_t)addr,
-                         VMM_PRESENT | VMM_WRITABLE) != 0) {
+        if (vmm_map_page(directory, (uint32_t)addr, (uint32_t)addr, VMM_PRESENT | VMM_WRITABLE) !=
+            0) {
             return -2;
         }
     }
