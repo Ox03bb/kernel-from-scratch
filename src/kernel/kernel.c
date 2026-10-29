@@ -74,10 +74,14 @@ void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
 
+    static volatile int *a = (volatile int *)0xfffffff;
+
+    *a = 4;
+    
     while (1) {
         // tty_process_events(&tty0);
     }
 
-    print("[\033[32mready\033[0m] Kernel initialized successfully!\n");
+    print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
     return;
 }
