@@ -203,72 +203,123 @@ int scanf(const char *format, ...) {
     return assigned;
 }
 
+int8_t _translate_color(const char *color) {
+    uint8_t value;
+    uint8_t light;
+
+    if ((color[0] != '0' && color[0] != '1') ||
+        color[1] < '0' || color[1] > '7')
+        return -1;
+
+    light = color[0] == '1' ? LIGHT_FLAG : 0;
+    value = (uint8_t)(color[1] - '0');
+
+    /* ANSI color order differs from the VGA palette order. */
+    switch (value) {
+    case 0:
+        value = BLACK;
+        break;
+    case 1:
+        value = RED;
+        break;
+    case 2:
+        value = GREEN;
+        break;
+    case 3:
+        value = YELLOW;
+        break;
+    case 4:
+        value = BLUE;
+        break;
+    case 5:
+        value = MAGENTA;
+        break;
+    case 6:
+        value = CYAN;
+        break;
+    case 7:
+        value = WHITE;
+        break;
+    }
+
+    return (int8_t)(value | light);
+}
+
+static uint8_t translate_ansi_color(char code, bool light) {
+    char color[2] = {light ? '1' : '0', code};
+    int8_t translated = _translate_color(color);
+
+    return translated < 0 ? DEFUALT_F : (uint8_t)translated;
+}
+
+static size_t print_sgr(const char *sequence, size_t length) {
+    int8_t foreground;
+    int8_t background;
+
+    if (length == 2 && sequence[0] == '0' && sequence[1] == 'm') {
+        vga_set_color(DEFUALT_F, DEFUALT_B);
+        return 2;
+    }
+
+    /* Custom format: ESC [ <light><fg> : <light><bg> m. */
+    if (length == 6 &&
+        sequence[0] >= '0' && sequence[0] <= '1' &&
+        sequence[1] >= '0' && sequence[1] <= '7' &&
+        sequence[2] == ':' &&
+        sequence[3] >= '0' && sequence[3] <= '1' &&
+        sequence[4] >= '0' && sequence[4] <= '7' &&
+        sequence[5] == 'm') {
+        foreground = translate_ansi_color(sequence[1], sequence[0] == '1');
+        background = translate_ansi_color(sequence[4], sequence[3] == '1');
+        if (foreground >= 0 && background >= 0)
+            vga_set_color((uint8_t)foreground, (uint8_t)background);
+        return 6;
+    }
+
+    /* Keep the existing single-color ANSI sequences working. */
+    if (length == 3 && sequence[0] >= '3' && sequence[0] <= '4' &&
+        sequence[1] >= '0' && sequence[1] <= '7' &&
+        sequence[2] == 'm') {
+        bool background_color = sequence[0] == '4';
+        uint8_t color = translate_ansi_color(sequence[1], false);
+        if (background_color)
+            vga_set_color(DEFUALT_F, color);
+        else
+            vga_set_color(color, DEFUALT_B);
+        return 3;
+    }
+
+    if (length == 3 && sequence[0] == '9' &&
+        sequence[1] >= '0' && sequence[1] <= '7' &&
+        sequence[2] == 'm') {
+        uint8_t color = translate_ansi_color(sequence[1], true);
+        vga_set_color(color, DEFUALT_B);
+        return 3;
+    }
+
+    return 0;
+}
+
 void print(const char *str) {
     while (*str) {
+        if (*str == '\033' && str[1] == '[') {
+            const char *sequence = str + 2;
+            size_t sequence_length = strlen(sequence);
+            size_t consumed = 0;
 
-        if (*str == '\033') {
-            str++;
-
-            if (*str == '[') {
-                str++;
-
-                if (*str == '3') {
-                    str++;
-
-                    switch (*str) {
-                    case '0':
-                        vga_set_color(BLACK, DEFUALT_B);
-                        break;
-
-                    case '1':
-                        vga_set_color(RED, DEFUALT_B);
-                        break;
-
-                    case '2':
-                        vga_set_color(GREEN, DEFUALT_B);
-                        break;
-
-                    case '3':
-                        vga_set_color(YELLOW, DEFUALT_B);
-                        break;
-
-                    case '4':
-                        vga_set_color(BLUE, DEFUALT_B);
-                        break;
-
-                    case '5':
-                        vga_set_color(MAGENTA, DEFUALT_B);
-                        break;
-
-                    case '6':
-                        vga_set_color(CYAN, DEFUALT_B);
-                        break;
-
-                    case '7':
-                        vga_set_color(WHITE, DEFUALT_B);
-                        break;
-                    }
-
-                    if (*str)
-                        str++;
-
-                    if (*str == 'm')
-                        str++;
-                } else if (*str == '0') {
-                    str++;
-
-                    if (*str == 'm') {
-                        vga_set_color(DEFUALT_F, DEFUALT_B);
-                        str++;
-                    }
-                }
+            if (sequence_length >= 6 && sequence[5] == 'm')
+                consumed = print_sgr(sequence, 6);
+            else if (sequence_length >= 3 && sequence[2] == 'm')
+                consumed = print_sgr(sequence, 3);
+            else if (sequence_length >= 2 && sequence[1] == 'm')
+                consumed = print_sgr(sequence, 2);
+            if (consumed != 0) {
+                str = sequence + consumed;
+                continue;
             }
-
-            continue;
         }
 
-        vga_print_char(*str);
-        str++;
+        vga_print_char(*str++);
     }
 }
 

@@ -16,7 +16,7 @@ void memory_detect_verbose(memory_map_t *memory_map) {
 
         uint64_t size_mb = entry->length / (1024 * 1024);
 
-        printf("[\033[34m%d\033[0m] base=0x", (int)i);
+        printf("[\033[04:00m%d\033[0m] base=0x", (int)i);
         print_hex_p((uint32_t)(entry->base >> 32), 1);
         print_hex_p((uint32_t)entry->base, 8);
         printf(" length=0x");
@@ -34,7 +34,7 @@ void pmm_memory_detect(memory_map_t *memory_map, boot_info_t *boot_info, bool ve
     memory_map->count = boot_info->memory_map_count;
     memory_map->entries = data;
 
-    print("[\033[34minit\033[0m] ");
+    print("[\033[04:00minit\033[0m] ");
     vga_print("Memory detection\n");
 
     if (verbose) {

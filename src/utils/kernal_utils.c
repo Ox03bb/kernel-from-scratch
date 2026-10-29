@@ -10,7 +10,7 @@
 #define TIMER_FREQ 1000
 
 void KERNEL_INIT(const char *name, void (*init_function)(void)) {
-    print("[\033[34minit\033[0m] ");
+    print("[\033[04:00minit\033[0m] ");
     vga_print(name);
 
     init_function();
@@ -19,7 +19,7 @@ void KERNEL_INIT(const char *name, void (*init_function)(void)) {
 }
 
 void KERNEL_INIT_P(const char *name) {
-    print("[\033[34minit\033[0m] ");
+    print("[\033[04:00minit\033[0m] ");
     vga_print(name);
 
     print_at_end("... Ok\n", GREEN);
