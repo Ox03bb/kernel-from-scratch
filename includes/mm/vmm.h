@@ -71,6 +71,7 @@ pte_t *vmm_create_page_table();
 
 int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_addr,
                     uint32_t flags);
+int8_t vmm_allocate(pde_t *directory, uint32_t virtual_addr);
 
 int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr);
 
@@ -79,6 +80,7 @@ pte_t *vmm_get_pte(pde_t *directory, vaddr_t va);
 void vmm_invalidate_page(uint32_t virtual_addr);
 
 uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err);
+bool vmm_is_mapped(pde_t *directory, vaddr_t va);
 
 void load_directory(uint32_t page_dir);
 void enable_paging(uint32_t page_dir);

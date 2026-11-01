@@ -115,6 +115,30 @@ int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_a
     return 0;
 }
 
+int8_t vmm_allocate(pde_t *directory, uint32_t virtual_addr) {
+    if (directory == NULL || (virtual_addr & (PAGE_SIZE - 1)) != 0)
+        return -1;
+
+    vaddr_t va;
+    va.raw = virtual_addr;
+
+    if (vmm_is_mapped(directory, va))
+        return -1;
+
+    uintptr_t physical_addr = pmm_alloc_frame();
+
+    if (physical_addr == 0)
+        return -1;
+
+    if (vmm_map_page(directory, virtual_addr, (uint32_t)physical_addr,
+                     VMM_PRESENT | VMM_WRITABLE) != 0) {
+        pmm_free_frame(physical_addr);
+        return -1;
+    }
+
+    return 0;
+}
+
 int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
     if (directory == NULL)
         return -1;
