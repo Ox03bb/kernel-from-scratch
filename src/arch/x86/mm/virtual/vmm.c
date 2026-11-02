@@ -9,6 +9,8 @@
 #define BOOTSTRAP_MEMORY_START 0x7000
 #define BOOTSTRAP_MEMORY_END   0xA000
 
+pde_t *current_directory = NULL;
+
 static int vmm_map_bootstrap_memory(pde_t *directory) {
     for (uintptr_t addr = BOOTSTRAP_MEMORY_START; addr < BOOTSTRAP_MEMORY_END; addr += PAGE_SIZE) {
         if (vmm_map_page(directory, addr, addr, VMM_PRESENT | VMM_WRITABLE) != 0) {
@@ -115,14 +117,14 @@ int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_a
     return 0;
 }
 
-int8_t vmm_allocate(pde_t *directory, uint32_t virtual_addr) {
-    if (directory == NULL || (virtual_addr & (PAGE_SIZE - 1)) != 0)
+int8_t vmm_allocate(uint32_t virtual_addr) {
+    if (current_directory == NULL || (virtual_addr & (PAGE_SIZE - 1)) != 0)
         return -1;
 
     vaddr_t va;
     va.raw = virtual_addr;
 
-    if (vmm_is_mapped(directory, va))
+    if (vmm_is_mapped(current_directory, va))
         return -1;
 
     uintptr_t physical_addr = pmm_alloc_frame();
@@ -130,7 +132,7 @@ int8_t vmm_allocate(pde_t *directory, uint32_t virtual_addr) {
     if (physical_addr == 0)
         return -1;
 
-    if (vmm_map_page(directory, virtual_addr, (uint32_t)physical_addr,
+    if (vmm_map_page(current_directory, virtual_addr, (uint32_t)physical_addr,
                      VMM_PRESENT | VMM_WRITABLE) != 0) {
         pmm_free_frame(physical_addr);
         return -1;
@@ -202,19 +204,19 @@ uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err) {
 bool vmm_is_mapped(pde_t *directory, vaddr_t va) { return vmm_get_pte(directory, va) != NULL; }
 
 void vmm_init(void) {
-    pde_t *kernel_directory = vmm_create_directory();
+    current_directory = vmm_create_directory();
 
-    if (kernel_directory == NULL)
+    if (current_directory == NULL)
         panic("Failed to create kernel page directory");
 
-    if (vmm_map_kernel(kernel_directory) != 0)
+    if (vmm_map_kernel(current_directory) != 0)
         panic("Failed to map kernel");
 
-    if (vmm_map_bootstrap_memory(kernel_directory) != 0)
+    if (vmm_map_bootstrap_memory(current_directory) != 0)
         panic("Failed to map bootstrap memory");
 
-    if (vmm_map_vga(kernel_directory) != 0)
+    if (vmm_map_vga(current_directory) != 0)
         panic("Failed to map VGA");
 
-    enable_paging((uint32_t)kernel_directory);
+    enable_paging((uint32_t)current_directory);
 }

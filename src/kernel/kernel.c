@@ -20,13 +20,19 @@
 #include "mm/pmm.h"
 #include "mm/vmm.h"
 
+#include "mm/heap.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
 uint8_t pmm_bitmap[BITMAP_SIZE];
 
+heap_t k_heap;
+
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
+
+// heap_t kheap;
 
 void kernel_main(boot_info_t *boot_info) {
 
@@ -74,10 +80,21 @@ void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
 
-    static volatile int *a = (volatile int *)0xfffffff;
+    int8_t err = init_heap(current_directory, &k_heap);
+    if (err == -1)
+        panic("heap init error");
 
-    *a = 4;
-    
+    KERNEL_INIT_P("Kernal Heap");
+
+
+
+    // void *b = gmalloc(&k_heap, sizeof(int) * 5);
+    // b = 5;
+
+    // static volatile int *a = (volatile int *)0xfffffff;
+
+    // *a = 4;
+
     while (1) {
         // tty_process_events(&tty0);
     }
