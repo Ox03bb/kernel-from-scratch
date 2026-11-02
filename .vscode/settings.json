@@ -1,0 +1,18 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/includes/**"
+    ],
+    "C_Cpp.default.compilerPath": "/home/linuxbrew/.linuxbrew/bin/i686-elf-gcc",
+    "C_Cpp.default.compilerArgs": [
+        "-g",
+        "-O0",
+        "-Wall",
+        "-std=gnu99",
+        "-ffreestanding",
+        "-nostdlib",
+        "-nostartfiles",
+        "-nodefaultlibs"
+    ],
+    "C_Cpp.default.intelliSenseMode": "gcc-x86"
+}

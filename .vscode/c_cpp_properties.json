@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "kernel-i686",
+            "compilerPath": "/home/linuxbrew/.linuxbrew/bin/i686-elf-gcc",
+            "includePath": [
+                "${workspaceFolder}/includes/**"
+            ],
+            "compilerArgs": [
+                "-g",
+                "-O0",
+                "-Wall",
+                "-std=gnu99",
+                "-ffreestanding",
+                "-nostdlib",
+                "-nostartfiles",
+                "-nodefaultlibs"
+            ],
+            "intelliSenseMode": "gcc-x86",
+            "cStandard": "gnu99"
+        }
+    ],
+    "version": 4
+}
