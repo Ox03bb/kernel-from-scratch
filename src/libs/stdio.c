@@ -207,8 +207,7 @@ int8_t _translate_color(const char *color) {
     uint8_t value;
     uint8_t light;
 
-    if ((color[0] != '0' && color[0] != '1') ||
-        color[1] < '0' || color[1] > '7')
+    if ((color[0] != '0' && color[0] != '1') || color[1] < '0' || color[1] > '7')
         return -1;
 
     light = color[0] == '1' ? LIGHT_FLAG : 0;
@@ -262,13 +261,9 @@ static size_t print_sgr(const char *sequence, size_t length) {
     }
 
     /* Custom format: ESC [ <light><fg> : <light><bg> m. */
-    if (length == 6 &&
-        sequence[0] >= '0' && sequence[0] <= '1' &&
-        sequence[1] >= '0' && sequence[1] <= '7' &&
-        sequence[2] == ':' &&
-        sequence[3] >= '0' && sequence[3] <= '1' &&
-        sequence[4] >= '0' && sequence[4] <= '7' &&
-        sequence[5] == 'm') {
+    if (length == 6 && sequence[0] >= '0' && sequence[0] <= '1' && sequence[1] >= '0' &&
+        sequence[1] <= '7' && sequence[2] == ':' && sequence[3] >= '0' && sequence[3] <= '1' &&
+        sequence[4] >= '0' && sequence[4] <= '7' && sequence[5] == 'm') {
         foreground = translate_ansi_color(sequence[1], sequence[0] == '1');
         background = translate_ansi_color(sequence[4], sequence[3] == '1');
         if (foreground >= 0 && background >= 0)
@@ -277,9 +272,8 @@ static size_t print_sgr(const char *sequence, size_t length) {
     }
 
     /* Keep the existing single-color ANSI sequences working. */
-    if (length == 3 && sequence[0] >= '3' && sequence[0] <= '4' &&
-        sequence[1] >= '0' && sequence[1] <= '7' &&
-        sequence[2] == 'm') {
+    if (length == 3 && sequence[0] >= '3' && sequence[0] <= '4' && sequence[1] >= '0' &&
+        sequence[1] <= '7' && sequence[2] == 'm') {
         bool background_color = sequence[0] == '4';
         uint8_t color = translate_ansi_color(sequence[1], false);
         if (background_color)
@@ -289,8 +283,7 @@ static size_t print_sgr(const char *sequence, size_t length) {
         return 3;
     }
 
-    if (length == 3 && sequence[0] == '9' &&
-        sequence[1] >= '0' && sequence[1] <= '7' &&
+    if (length == 3 && sequence[0] == '9' && sequence[1] >= '0' && sequence[1] <= '7' &&
         sequence[2] == 'm') {
         uint8_t color = translate_ansi_color(sequence[1], true);
         vga_set_color(color, DEFUALT_B);

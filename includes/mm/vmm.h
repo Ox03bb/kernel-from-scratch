@@ -8,6 +8,9 @@
 #define PAGE_ENTRIES 1024
 #define PAGE_SIZE    FRAME_SIZE
 
+#define RECURSIVE_DIRECTORY 0xFFFFF000
+#define RECURSIVE_TABLES    0xFFC00000
+
 #define VMM_PRESENT       (1u << 0)
 #define VMM_WRITABLE      (1u << 1)
 #define VMM_USER          (1u << 2)

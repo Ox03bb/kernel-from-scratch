@@ -10,6 +10,23 @@
 #define BOOTSTRAP_MEMORY_END   0xA000
 
 pde_t *current_directory = NULL;
+static bool recursive_mapping_ready = false;
+
+static pde_t *vmm_get_directory_entry(pde_t *directory, uint32_t index) {
+    if (directory == current_directory && recursive_mapping_ready) {
+        return &((pde_t *)RECURSIVE_DIRECTORY)[index];
+    }
+
+    return &directory[index];
+}
+
+static pte_t *vmm_get_page_table(pde_t *directory, uint32_t pd, pde_t *pde) {
+    if (directory == current_directory && recursive_mapping_ready) {
+        return (pte_t *)(RECURSIVE_TABLES + (pd * PAGE_SIZE));
+    }
+
+    return (pte_t *)(pde->addr << 12);
+}
 
 static int vmm_map_bootstrap_memory(pde_t *directory) {
     for (uintptr_t addr = BOOTSTRAP_MEMORY_START; addr < BOOTSTRAP_MEMORY_END; addr += PAGE_SIZE) {
@@ -60,13 +77,15 @@ pte_t *vmm_create_page_table() {
     if (phys_addr == 0)
         return NULL;
 
-    pte_t *table = (pte_t *)phys_addr;
+    if (!recursive_mapping_ready) {
+        pte_t *table = (pte_t *)phys_addr;
 
-    for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {
-        table[i].raw = 0;
+        for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {
+            table[i].raw = 0;
+        }
     }
 
-    return table;
+    return (pte_t *)phys_addr;
 }
 
 int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_addr,
@@ -81,7 +100,7 @@ int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_a
     vaddr_t va;
     va.raw = virtual_addr;
 
-    pde_t *pde = &directory[va.pd];
+    pde_t *pde = vmm_get_directory_entry(directory, va.pd);
 
     /* Allocate a page table if this PDE is not present. */
     if (!pde->p) {
@@ -98,13 +117,18 @@ int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_a
         pde->us = 0;
         pde->ps = 0;
         pde->p = 1;
+
+        pte_t *new_table = vmm_get_page_table(directory, va.pd, pde);
+        for (uint32_t i = 0; i < PAGE_ENTRIES; i++) {
+            new_table[i].raw = 0;
+        }
     }
 
     /*
      * This direct cast is valid only under the
      * physical-address-access assumption stated above.
      */
-    pte_t *table = (pte_t *)(pde->addr << 12);
+    pte_t *table = vmm_get_page_table(directory, va.pd, pde);
 
     pte_t *pte = &table[va.pt];
 
@@ -151,12 +175,12 @@ int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
     vaddr_t va;
     va.raw = virtual_addr;
 
-    pde_t *pde = &directory[va.pd];
+    pde_t *pde = vmm_get_directory_entry(directory, va.pd);
 
     if (!pde->p)
         return -1;
 
-    pte_t *table = (pte_t *)(pde->addr << 12);
+    pte_t *table = vmm_get_page_table(directory, va.pd, pde);
     pte_t *pte = &table[va.pt];
 
     if (!pte->p)
@@ -174,13 +198,13 @@ pte_t *vmm_get_pte(pde_t *directory, vaddr_t va) {
     if (directory == NULL)
         return NULL;
 
-    pde_t *pde = &directory[va.pd];
+    pde_t *pde = vmm_get_directory_entry(directory, va.pd);
 
     if (!pde->p) {
         return NULL;
     }
 
-    pte_t *page_table = (pte_t *)(pde->addr << 12);
+    pte_t *page_table = vmm_get_page_table(directory, va.pd, pde);
     pte_t *pte = &page_table[va.pt];
 
     if (!pte->p)
@@ -209,6 +233,16 @@ void vmm_init(void) {
     if (current_directory == NULL)
         panic("Failed to create kernel page directory");
 
+    /*
+     * The last directory entry points back to the directory itself. This
+     * exposes the directory at 0xFFFFF000 and every page table at
+     * 0xFFC00000 + (directory index * PAGE_SIZE).
+     */
+    current_directory[PAGE_ENTRIES - 1].raw = 0;
+    current_directory[PAGE_ENTRIES - 1].addr = (uint32_t)current_directory >> 12;
+    current_directory[PAGE_ENTRIES - 1].rw = 1;
+    current_directory[PAGE_ENTRIES - 1].p = 1;
+
     if (vmm_map_kernel(current_directory) != 0)
         panic("Failed to map kernel");
 
@@ -219,4 +253,5 @@ void vmm_init(void) {
         panic("Failed to map VGA");
 
     enable_paging((uint32_t)current_directory);
+    recursive_mapping_ready = true;
 }

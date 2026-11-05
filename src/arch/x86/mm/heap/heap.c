@@ -20,20 +20,20 @@ int8_t init_heap(pde_t *directory, heap_t *heap) {
 
     if (end > K_HEAP_MAX)
         return -1;
-    
+
     printf("cc\n");
 
     print("\ninit heap\n");
     // Map the initial heap pages.
     for (uintptr_t addr = start; addr < end; addr += PAGE_SIZE) {
-        print("a ") ;
-        if (vmm_allocate(addr) != 0)
+        print("a ");
+        if (vmm_allocate(addr) != 0) {
             print("\n not a");
             return -1;
+        }
     }
 
     printf("ff\n");
-
 
     // Initialize heap metadata.
     heap->start = start;
@@ -51,7 +51,6 @@ int8_t init_heap(pde_t *directory, heap_t *heap) {
 
     return 0;
 }
-
 
 heap_block_t *_get_last(heap_t *heap) {
     if (heap == NULL || heap->head == NULL)
@@ -95,8 +94,7 @@ void *gmalloc(heap_t *heap, size_t size) {
     block->is_free = false;
 
     if (remaining > sizeof(heap_block_t)) {
-        heap_block_t *block_n =
-            (heap_block_t *)((uintptr_t)(block + 1) + size);
+        heap_block_t *block_n = (heap_block_t *)((uintptr_t)(block + 1) + size);
 
         block_n->size = remaining - sizeof(heap_block_t);
         block_n->is_free = true;
@@ -108,11 +106,11 @@ void *gmalloc(heap_t *heap, size_t size) {
 
     return (void *)(block + 1);
 }
-int8_t gfree(heap_t *heap, void *ptr){
+int8_t gfree(heap_t *heap, void *ptr) {
     if (heap == NULL || ptr == NULL)
         return -1;
 
-    heap_block_t *block  = (heap_block_t *)(ptr) - 1;
+    heap_block_t *block = (heap_block_t *)(ptr)-1;
 
     block->is_free = true;
 

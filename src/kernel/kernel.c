@@ -40,7 +40,8 @@ void kernel_main(boot_info_t *boot_info) {
         panic("Boot info is NULL");
     }
 
-    KERNEL_INIT("VGA console", vga_init);
+    vga_init();
+    KERNEL_INIT_P("VGA Console");
 
     KERNEL_INIT("PIC - Programmable Interrupt Controller", pic_init);
 
@@ -80,13 +81,20 @@ void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
 
-    int8_t err = init_heap(current_directory, &k_heap);
-    if (err == -1)
-        panic("heap init error");
+    vmm_allocate(0x3e000);
+    // vmm_map_page(current_directory,0x3e000,0x3e000,VMM_PRESENT | VMM_WRITABLE);
 
-    KERNEL_INIT_P("Kernal Heap");
+    static volatile int *a = (volatile int *)0x3e000;
 
+    *a = 5;
+    int b = *a;
+    printf("a %d", b);
 
+    // int8_t err = init_heap(current_directory, &k_heap);
+    // if (err == -1)
+    //     panic("heap init error");
+
+    // KERNEL_INIT_P("Kernal Heap");
 
     // void *b = gmalloc(&k_heap, sizeof(int) * 5);
     // b = 5;
