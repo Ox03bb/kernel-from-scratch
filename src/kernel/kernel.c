@@ -20,13 +20,19 @@
 #include "mm/pmm.h"
 #include "mm/vmm.h"
 
+#include "mm/heap.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
 uint8_t pmm_bitmap[BITMAP_SIZE];
 
+heap_t k_heap;
+
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
+
+// heap_t kheap;
 
 void kernel_main(boot_info_t *boot_info) {
 
@@ -34,7 +40,8 @@ void kernel_main(boot_info_t *boot_info) {
         panic("Boot info is NULL");
     }
 
-    KERNEL_INIT("VGA console", vga_init);
+    vga_init();
+    KERNEL_INIT_P("VGA Console");
 
     KERNEL_INIT("PIC - Programmable Interrupt Controller", pic_init);
 
@@ -74,10 +81,32 @@ void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
 
+    vmm_allocate(0x3e000);
+    // vmm_map_page(current_directory,0x3e000,0x3e000,VMM_PRESENT | VMM_WRITABLE);
+
+    static volatile int *a = (volatile int *)0x3e000;
+
+    *a = 5;
+    int b = *a;
+    printf("a %d", b);
+
+    // int8_t err = init_heap(current_directory, &k_heap);
+    // if (err == -1)
+    //     panic("heap init error");
+
+    // KERNEL_INIT_P("Kernal Heap");
+
+    // void *b = gmalloc(&k_heap, sizeof(int) * 5);
+    // b = 5;
+
+    // static volatile int *a = (volatile int *)0xfffffff;
+
+    // *a = 4;
+
     while (1) {
         // tty_process_events(&tty0);
     }
 
-    print("[\033[32mready\033[0m] Kernel initialized successfully!\n");
+    print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
     return;
 }

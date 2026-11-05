@@ -42,7 +42,7 @@ bool input_queue_is_full(void) {
 }
 
 void input_queue_print() {
-    printf("\033[32mInput Queue: \033[0m head=%d, tail=%d\n", input_event_queue.head,
+    printf("\033[02:00mInput Queue: \033[0m head=%d, tail=%d\n", input_event_queue.head,
            input_event_queue.tail);
     uint32_t count = (input_event_queue.head - input_event_queue.tail + INPUT_EVENT_QUEUE_SIZE) %
                      INPUT_EVENT_QUEUE_SIZE;
@@ -56,13 +56,13 @@ void input_queue_print() {
 
 void input_queue_print_last() {
     if (input_queue_is_empty()) {
-        printf("\033[31mInput Queue: \033[0m Empty\n");
+        printf("\033[01:00mInput Queue: \033[0m Empty\n");
         return;
     }
 
     uint32_t last = (input_event_queue.head - 1 + INPUT_EVENT_QUEUE_SIZE) % INPUT_EVENT_QUEUE_SIZE;
     input_event_t event = input_event_queue.events[last];
-    printf("\033[32mInput Queue:\033[0m Last event key=%d action=%d char=%c\n", event.key,
+    printf("\033[02:00mInput Queue:\033[0m Last event key=%d action=%d char=%c\n", event.key,
            event.action, event.character);
 }
 

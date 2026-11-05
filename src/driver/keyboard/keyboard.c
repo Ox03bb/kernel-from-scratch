@@ -32,14 +32,14 @@ void reset_keyboard(void) {
     ps2_wait_output_full();
 
     if (ps2_read() != K_ACK) {
-        printf("\033[31mERROR:\033[0m Keyboard did not acknowledge reset.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard did not acknowledge reset.\n");
         return;
     }
 
     ps2_wait_output_full();
 
     if (ps2_read() != k_BAT) {
-        printf("\033[31mERROR:\033[0m Keyboard BAT failed.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard BAT failed.\n");
         return;
     }
 }
@@ -47,7 +47,7 @@ void reset_keyboard(void) {
 void set_scanning(bool state) {
     ps2_flush_output();
     if (!ps2_wait_input_clear()) {
-        printf("\033[31mERROR:\033[0m Keyboard input timeout while toggling scanning.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard input timeout while toggling scanning.\n");
         return;
     }
 
@@ -58,12 +58,12 @@ void set_scanning(bool state) {
     }
 
     if (!ps2_wait_output_full()) {
-        printf("\033[31mERROR:\033[0m Keyboard scan ack timeout.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard scan ack timeout.\n");
         return;
     }
 
     if (ps2_read() != K_ACK) {
-        printf("\033[31mERROR:\033[0m Keyboard did not acknowledge scanning command.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard did not acknowledge scanning command.\n");
     }
 }
 
@@ -71,42 +71,42 @@ void set_scaning(bool state) { set_scanning(state); }
 
 void select_scancode_set(uint8_t set) {
     if (set > 3) {
-        printf("\033[31mERROR:\033[0m Invalid scancode set %u.\n", set);
+        printf("\033[01:00mERROR:\033[0m Invalid scancode set %u.\n", set);
         return;
     }
 
     ps2_flush_output();
     if (!ps2_wait_input_clear()) {
-        printf("\033[31mERROR:\033[0m Keyboard input timeout before scancode set select.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard input timeout before scancode set select.\n");
         return;
     }
 
     ps2_write(PS2_DC_SELECT_SET);
 
     if (!ps2_wait_output_full()) {
-        printf("\033[31mERROR:\033[0m Keyboard ack timeout while selecting scancode set.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard ack timeout while selecting scancode set.\n");
         return;
     }
 
     if (ps2_read() != K_ACK) {
-        printf("\033[31mERROR:\033[0m keyboard.h:53 select_scancode_set .\n");
+        printf("\033[01:00mERROR:\033[0m keyboard.h:53 select_scancode_set .\n");
         return;
     }
 
     ps2_flush_output();
     if (!ps2_wait_input_clear()) {
-        printf("\033[31mERROR:\033[0m Keyboard input timeout before scancode value.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard input timeout before scancode value.\n");
         return;
     }
 
     ps2_write(set);
 
     if (!ps2_wait_output_full()) {
-        printf("\033[31mERROR:\033[0m Keyboard ack timeout after scancode value.\n");
+        printf("\033[01:00mERROR:\033[0m Keyboard ack timeout after scancode value.\n");
         return;
     }
 
     if (ps2_read() != K_ACK) {
-        printf("\033[31mERROR:\033[0m keyboard.h:65 select_scancode_set .\n");
+        printf("\033[01:00mERROR:\033[0m keyboard.h:65 select_scancode_set .\n");
     }
 }

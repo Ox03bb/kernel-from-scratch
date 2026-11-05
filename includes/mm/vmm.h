@@ -8,6 +8,9 @@
 #define PAGE_ENTRIES 1024
 #define PAGE_SIZE    FRAME_SIZE
 
+#define RECURSIVE_DIRECTORY 0xFFFFF000
+#define RECURSIVE_TABLES    0xFFC00000
+
 #define VMM_PRESENT       (1u << 0)
 #define VMM_WRITABLE      (1u << 1)
 #define VMM_USER          (1u << 2)
@@ -64,6 +67,8 @@ typedef union {
     };
 } vaddr_t; // virtual address
 
+extern pde_t *current_directory;
+
 void enable_paging(uint32_t page_dir);
 
 pde_t *vmm_create_directory();
@@ -71,6 +76,7 @@ pte_t *vmm_create_page_table();
 
 int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_addr,
                     uint32_t flags);
+int8_t vmm_allocate(uint32_t virtual_addr);
 
 int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr);
 
@@ -79,6 +85,7 @@ pte_t *vmm_get_pte(pde_t *directory, vaddr_t va);
 void vmm_invalidate_page(uint32_t virtual_addr);
 
 uintptr_t vmm_get_phys_addr(pde_t *directory, vaddr_t va, bool *err);
+bool vmm_is_mapped(pde_t *directory, vaddr_t va);
 
 void load_directory(uint32_t page_dir);
 void enable_paging(uint32_t page_dir);
