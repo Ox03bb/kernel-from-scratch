@@ -165,6 +165,47 @@ int8_t vmm_allocate(uint32_t virtual_addr) {
     return 0;
 }
 
+int8_t vmm_allocate_range(uint32_t start, uint32_t end) {
+    if (current_directory == NULL || start >= end || (start & (PAGE_SIZE - 1)) != 0 ||
+        (end & (PAGE_SIZE - 1)) != 0)
+        return -1;
+
+    uint32_t page_count = (end - start) / PAGE_SIZE;
+
+    /*
+     * Check the complete range before allocating frames so a failed request
+     * cannot leave a partially mapped virtual range.
+     */
+    for (uint32_t i = 0; i < page_count; i++) {
+        vaddr_t va;
+        va.raw = start + (i * PAGE_SIZE);
+
+        if (vmm_is_mapped(current_directory, va))
+            return -1;
+    }
+
+    uintptr_t physical_start = pmm_alloc_n_frame((int)page_count);
+
+    if (physical_start == 0)
+        return -1;
+
+    for (uint32_t i = 0; i < page_count; i++) {
+        uint32_t virtual_addr = start + (i * PAGE_SIZE);
+        uint32_t physical_addr = (uint32_t)(physical_start + (i * PAGE_SIZE));
+
+        if (vmm_map_page(current_directory, virtual_addr, physical_addr,
+                         VMM_PRESENT | VMM_WRITABLE) != 0) {
+            for (uint32_t rollback = 0; rollback < i; rollback++)
+                vmm_unmap_page(current_directory, start + (rollback * PAGE_SIZE));
+
+            pmm_free_n_frame(physical_start, (int)page_count);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr) {
     if (directory == NULL)
         return -1;

@@ -6,12 +6,10 @@
 
 #include "panic.h"
 
-#include "stdio.h"
+heap_t *current_heap;
 
 int8_t init_heap(pde_t *directory, heap_t *heap) {
-    printf("cc\n");
     if (directory == NULL) {
-        print("null");
         return -1;
     }
 
@@ -21,19 +19,8 @@ int8_t init_heap(pde_t *directory, heap_t *heap) {
     if (end > K_HEAP_MAX)
         return -1;
 
-    printf("cc\n");
-
-    print("\ninit heap\n");
-    // Map the initial heap pages.
-    for (uintptr_t addr = start; addr < end; addr += PAGE_SIZE) {
-        print("a ");
-        if (vmm_allocate(addr) != 0) {
-            print("\n not a");
-            return -1;
-        }
-    }
-
-    printf("ff\n");
+    if (vmm_allocate_range((uint32_t)start, (uint32_t)end) != 0)
+        return -1;
 
     // Initialize heap metadata.
     heap->start = start;
@@ -115,4 +102,16 @@ int8_t gfree(heap_t *heap, void *ptr) {
     block->is_free = true;
 
     return 0;
+}
+
+void *malloc(size_t size) { return gmalloc(current_heap, size); }
+
+int8_t free(void *ptr) { return gfree(current_heap, ptr); }
+
+bool is_allocated(const void *ptr) {
+    if (ptr == NULL)
+        return false;
+
+    const heap_block_t *block = (const heap_block_t *)ptr - 1;
+    return !block->is_free;
 }

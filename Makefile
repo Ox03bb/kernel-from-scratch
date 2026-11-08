@@ -75,12 +75,12 @@ $(OS_BIN): $(BOOT_ASM) $(KERNEL_ASM_SRCS) $(KERNEL_C_SRCS) $(LINKER_SCRIPT)
 		i686-elf-gcc $(CFLAGS) \
 			-T linker.ld \
 			-o build/kernel.elf \
-			build/kernel-linked.o && \
+			build/kernel-linked.o ; \
 		\
 		echo "== Creating raw kernel binary =="; \
 		i686-elf-objcopy -O binary \
 			build/kernel.elf \
-			bin/kernel.bin && \
+			bin/kernel.bin ; \
 		\
 		KERNEL_SIZE=$$(stat -c%s bin/kernel.bin); \
 		KERNEL_SECTORS=$$(( (KERNEL_SIZE + 511) / 512 )); \

@@ -77,6 +77,7 @@ pte_t *vmm_create_page_table();
 int8_t vmm_map_page(pde_t *directory, uint32_t virtual_addr, uint32_t physical_addr,
                     uint32_t flags);
 int8_t vmm_allocate(uint32_t virtual_addr);
+int8_t vmm_allocate_range(uint32_t start, uint32_t end);
 
 int8_t vmm_unmap_page(pde_t *directory, uint32_t virtual_addr);
 
