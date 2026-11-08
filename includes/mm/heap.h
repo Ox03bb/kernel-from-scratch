@@ -24,12 +24,16 @@ typedef struct {
     heap_block_t *head;
 } heap_t;
 
+extern heap_t *current_heap;
+
 int8_t init_heap(pde_t *directory, heap_t *heap);
 
 void *gmalloc(heap_t *heap, size_t size);
 int8_t gfree(heap_t *heap, void *ptr);
 
-// void *kmalloc(size_t size);
-// void kfree(void *ptr);
+void *malloc(size_t size);
+int8_t free(void *ptr);
+
+bool is_allocated(const void *ptr);
 
 #endif
