@@ -6,8 +6,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define THREAD_INVALID_ID UINT32_MAX
+
 /* Thread states */
-typedef enum { THREAD_READY, THREAD_RUNNING, THREAD_BLOCKED, THREAD_TERMINATED } thread_state_t;
+typedef enum {
+    THREAD_READY,
+    THREAD_RUNNING,
+    THREAD_BLOCKED,
+    THREAD_TERMINATED,
+    THREAD_INVALID
+} thread_state_t;
 
 /* CPU context */
 typedef struct {
@@ -41,27 +49,26 @@ typedef struct thread {
 
     struct thread *next;
 } thread_t;
-extern uint32_t last_id = 1;
+extern uint32_t last_id;
 
 /* Thread lifecycle */
 
 thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size);
 
-void thread_destroy(thread_t *thread);
+int8_t thread_destroy(thread_t *thread);
 
-void thread_exit(void);
+void thread_exit(void); //! not implimented
 
 /* Thread state management */
+int8_t thread_chstt(thread_t *thread, thread_state_t s);
 
-void thread_block(thread_t *thread);
+int8_t thread_block(thread_t *thread);
 
-void thread_unblock(thread_t *thread);
+int8_t thread_unblock(thread_t *thread);
 
-void thread_yield(void);
+void thread_yield(void); //! not implimented
 
 /* Thread information */
-
-thread_t *thread_current(void);
 
 uint32_t thread_get_id(thread_t *thread);
 

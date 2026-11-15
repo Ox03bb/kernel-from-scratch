@@ -16,11 +16,7 @@ void thread_bootstrap(void) {
     thread_exit();
 }
 
-thread_t *thread_create(
-    const char *name,
-    void (*entry)(void),
-    size_t stack_size
-) {
+thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size) {
     if (!entry || stack_size < sizeof(cpu_context_t))
         return NULL;
 
@@ -43,8 +39,7 @@ thread_t *thread_create(
     t->next = NULL;
 
     // Calculate aligned stack top.
-    uintptr_t stack_top =
-        ((uintptr_t)t->stack + stack_size) & ~(uintptr_t)0xF;
+    uintptr_t stack_top = ((uintptr_t)t->stack + stack_size) & ~(uintptr_t)0xF;
 
     // Reserve space for the initial CPU context.
     stack_top -= sizeof(cpu_context_t);
@@ -52,27 +47,76 @@ thread_t *thread_create(
     // Initialize the initial context.
     cpu_context_t *ctx = (cpu_context_t *)stack_top;
 
-    *ctx = (cpu_context_t) {
-        .edi = 0,
-        .esi = 0,
-        .ebp = 0,
-        .esp_dummy = 0,
-        .ebx = 0,
-        .edx = 0,
-        .ecx = 0,
-        .eax = 0,
+    *ctx = (cpu_context_t){.edi = 0,
+                           .esi = 0,
+                           .ebp = 0,
+                           .esp_dummy = 0,
+                           .ebx = 0,
+                           .edx = 0,
+                           .ecx = 0,
+                           .eax = 0,
 
-        .eip = (uint32_t)thread_bootstrap,
-        .cs = 0x08,
-        .eflags = 0x202
-    };
+                           .eip = (uint32_t)thread_bootstrap,
+                           .cs = 0x08,
+                           .eflags = 0x202};
 
     t->saved_esp = (uint32_t)ctx;
 
     return t;
 }
 
-void thread_exit(void){
+int8_t thread_destroy(thread_t *thread) {
+    if (thread == NULL)
+        return -1;
+
+    free(thread->stack);
+    free(thread);
+
+    return 0;
+}
+
+int8_t thread_chstt(thread_t *thread, thread_state_t s) {
+    if (thread == NULL)
+        return -1;
+
+    thread->state = s;
+
+    return 0;
+}
+
+int8_t thread_block(thread_t *thread) {
+    if (thread == NULL)
+        return -1;
+
+    thread->state = THREAD_BLOCKED;
+
+    return 0;
+}
+
+int8_t thread_unblock(thread_t *thread) {
+    if (thread == NULL)
+        return -1;
+
+    thread->state = THREAD_READY;
+
+    return 0;
+}
+
+uint32_t thread_get_id(thread_t *thread) {
+    if (thread == NULL)
+        return THREAD_INVALID_ID;
+
+    return thread->tid;
+}
+
+thread_state_t thread_get_state(thread_t *thread) {
+    if (thread == NULL)
+        return THREAD_INVALID;
+
+    return thread->state;
+}
+
+void thread_exit(void) {
     print("thread_exit");
-    return ;
+    return;
 }

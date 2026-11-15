@@ -2,8 +2,8 @@
 #ifndef task_utils_H
 #define task_utils_H
 
-#include <stdbool.h>
 #include "sched.h"
+#include <stdbool.h>
 
 /* Scheduler ready-queue operations */
 

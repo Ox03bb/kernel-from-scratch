@@ -22,12 +22,16 @@
 
 #include "mm/heap.h"
 
+#include "sched.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
 uint8_t pmm_bitmap[BITMAP_SIZE];
 
 heap_t k_heap;
+
+scheduler_t *sched;
 
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
