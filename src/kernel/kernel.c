@@ -69,15 +69,15 @@ void kernel_main(boot_info_t *boot_info) {
     pmm_reserve((uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
 
-    KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
+    KERNEL_INIT("VMM - Virtual Memory & Paging ", vmm_init);
 
     current_heap = &k_heap;
     init_heap(current_directory, current_heap);
-
     KERNEL_INIT_P("Kernal Heap");
 
     tty_t tty0;
     tty_init(&tty0);
+    KERNEL_INIT_P("TTY - Teletypewriter 0");
 
     while (1) {
         tty_process_events(&tty0);

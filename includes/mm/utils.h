@@ -5,6 +5,7 @@
 #include "mm/vmm.h"
 
 int vmm_map_kernel(pde_t *directory);
+int vmm_map_bootstrap_memory(pde_t *directory);
 int vmm_map_vga(pde_t *directory);
 
 #endif

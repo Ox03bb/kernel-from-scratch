@@ -5,6 +5,9 @@
 #include "mm/pmm.h"
 #include "mm/vmm.h"
 
+#define BOOTSTRAP_MEMORY_START 0x7000
+#define BOOTSTRAP_MEMORY_END   0xA000
+
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
 
@@ -28,6 +31,17 @@ int vmm_map_kernel(pde_t *directory) {
 
     return 0;
 }
+
+int vmm_map_bootstrap_memory(pde_t *directory) {
+    for (uintptr_t addr = BOOTSTRAP_MEMORY_START; addr < BOOTSTRAP_MEMORY_END; addr += PAGE_SIZE) {
+        if (vmm_map_page(directory, addr, addr, VMM_PRESENT | VMM_WRITABLE) != 0) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 
 int vmm_map_vga(pde_t *directory) {
     if (directory == NULL)
