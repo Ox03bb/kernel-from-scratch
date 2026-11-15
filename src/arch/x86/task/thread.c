@@ -1,8 +1,20 @@
 #include "thread.h"
 #include "task/utils.h"
 
+#include "stdio.h"
+
 #include "heap.h"
 #include "sched.h"
+
+uint32_t last_id = 1;
+
+void thread_bootstrap(void) {
+    thread_t *current = sched_current_thread();
+
+    current->entry();
+
+    thread_exit();
+}
 
 thread_t *thread_create(
     const char *name,
@@ -58,4 +70,9 @@ thread_t *thread_create(
     t->saved_esp = (uint32_t)ctx;
 
     return t;
+}
+
+void thread_exit(void){
+    print("thread_exit");
+    return ;
 }

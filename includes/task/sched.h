@@ -20,38 +20,36 @@ typedef struct {
     bool enabled;
 } scheduler_t;
 
-extern scheduler_t *sched;
-
 /* Scheduler lifecycle */
 
-void scheduler_init(void);
+void sched_init(void);
 
-void scheduler_start(void);
+void sched_start(void);
 
-void scheduler_shutdown(void);
+void sched_shutdown(void);
 
 /* Scheduling operations */
 
-void scheduler_schedule(void);
+void sched_schedule(void);
 
-void scheduler_yield(void);
+void sched_yield(void);
 
-void scheduler_tick(void);
+void sched_tick(void);
 
 /* Thread management */
 
-void scheduler_add(thread_t *thread);
+void sched_add(thread_t *thread);
 
-void scheduler_remove(thread_t *thread);
+void sched_remove(thread_t *thread);
 
-thread_t *scheduler_next(void);
+thread_t *sched_next(void);
 
 /* Scheduler information */
 
-thread_t *scheduler_current_thread(void);
+thread_t *sched_current_thread(void);
 
-bool scheduler_is_enabled(void);
+bool sched_is_enabled(void);
 
-uint32_t scheduler_get_tick_count(void);
+uint32_t sched_get_tick_count(void);
 
 #endif
