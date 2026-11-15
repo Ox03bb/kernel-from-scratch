@@ -42,7 +42,6 @@ int vmm_map_bootstrap_memory(pde_t *directory) {
     return 0;
 }
 
-
 int vmm_map_vga(pde_t *directory) {
     if (directory == NULL)
         return -1;

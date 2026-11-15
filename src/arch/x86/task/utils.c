@@ -62,8 +62,7 @@ bool sq_contains(const scheduler_t *scheduler, const thread_t *thread) {
     if (scheduler == NULL || thread == NULL)
         return false;
 
-    for (const thread_t *current = scheduler->ready_queue;
-         current != NULL;
+    for (const thread_t *current = scheduler->ready_queue; current != NULL;
          current = current->next) {
         if (current == thread)
             return true;

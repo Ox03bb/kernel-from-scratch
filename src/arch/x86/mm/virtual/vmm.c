@@ -277,7 +277,7 @@ void vmm_init(void) {
     if (vmm_map_kernel(current_directory) != 0)
         panic("Failed to map kernel");
 
-     if (vmm_map_bootstrap_memory(current_directory) != 0)
+    if (vmm_map_bootstrap_memory(current_directory) != 0)
         panic("Failed to map kernel Stack");
 
     if (vmm_map_bootstrap_memory(current_directory) != 0)
