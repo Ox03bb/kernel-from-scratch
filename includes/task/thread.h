@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "utils/types.h"
+
 #define THREAD_INVALID_ID UINT32_MAX
 
 /* Thread states */
@@ -19,17 +21,9 @@ typedef enum {
 
 /* CPU context */
 typedef struct {
-    uint32_t edi;
-    uint32_t esi;
-    uint32_t ebp;
-    uint32_t esp_dummy;
-    uint32_t ebx;
-    uint32_t edx;
-    uint32_t ecx;
-    uint32_t eax;
-
+    registers_t registers;
     uint32_t eip;
-    uint32_t cs;
+    uint32_t cs; // hardcoded in this version to 0x08
     uint32_t eflags;
 } cpu_context_t;
 
@@ -73,5 +67,13 @@ void thread_yield(void); //! not implimented
 uint32_t thread_get_id(thread_t *thread);
 
 thread_state_t thread_get_state(thread_t *thread);
+
+// important threads
+
+thread_t *thread_create_bootstrap(void);
+thread_t *thread_create_idle(size_t stack_size);
+
+void thread_bootstrap(void);
+void thread_idle(void);
 
 #endif

@@ -31,7 +31,8 @@ An educational kernel built completely from scratch to explore low-level systems
 │   ├── timer.h
 │   ├── driver/
 │   ├── interrupt/
-│   ├── lib/
+│   ├── mm/
+│   ├── task/
 │   └── utils/
 ├── scripts/
 │   └── requirements.sh
@@ -45,6 +46,7 @@ An educational kernel built completely from scratch to explore low-level systems
 │   │       ├── interrupt/
 │   │       ├── kernel/
 │   │       ├── mm/
+│   │       ├── task/
 │   │       └── utils/
 │   ├── libs/
 │   └── utils/
@@ -54,14 +56,14 @@ An educational kernel built completely from scratch to explore low-level systems
 
 To install all the required tools, you can use the following commands:
 
-* **if u'r using Linux:**
+* **if u'r using `Linux`:**
 
     ```bash
         sh ./scripts/install.sh
     ```
-* **if u'r using Windows:** (shame on you)
+* **if u'r using `SpywareOS` (also known as `Windows`):**
 
-    1. Uninstall windows 
+    1. Uninstall it
     2. Install linux
     3. Run the above command
    

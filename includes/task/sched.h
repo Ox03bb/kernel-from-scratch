@@ -1,4 +1,3 @@
-
 #ifndef SCHED_H
 #define SCHED_H
 
@@ -20,6 +19,8 @@ typedef struct {
     bool enabled;
 } scheduler_t;
 
+extern uint32_t tick_count;
+
 /* Scheduler lifecycle */
 
 void sched_init(void);
@@ -38,9 +39,9 @@ void sched_tick(void);
 
 /* Thread management */
 
-void sched_add(thread_t *thread);
+int8_t sched_add(thread_t *thread);
 
-void sched_remove(thread_t *thread);
+int8_t sched_remove(thread_t *thread);
 
 thread_t *sched_next(void);
 

@@ -2,8 +2,11 @@
 #include "task/utils.h"
 
 #include "stdio.h"
+#include "utils/utils.h"
 
 #include "heap.h"
+
+#include "context.h"
 #include "sched.h"
 
 uint32_t last_id = 1;
@@ -14,6 +17,59 @@ void thread_bootstrap(void) {
     current->entry();
 
     thread_exit();
+}
+
+void thread_idle(void) {
+    while (1) {
+        sti();
+        hlt();
+    }
+}
+
+thread_t *thread_create_bootstrap(void) {
+    thread_t *thread = malloc(sizeof(thread_t));
+
+    if (thread == NULL)
+        return NULL;
+
+    thread->tid = 0;
+    thread->name = "bootstrap";
+    thread->state = THREAD_RUNNING;
+
+    thread->stack = NULL;
+    thread->stack_size = 0;
+
+    thread->entry = NULL;
+    thread->next = NULL;
+
+    return thread;
+}
+
+thread_t *thread_create_idle(size_t stack_size) {
+    thread_t *thread = malloc(sizeof(thread_t));
+
+    if (thread == NULL)
+        return NULL;
+
+    thread->stack = malloc(stack_size);
+
+    if (thread->stack == NULL) {
+        free(thread);
+        return NULL;
+    }
+
+    thread->tid = 1;
+    thread->name = "idle";
+    thread->state = THREAD_READY;
+
+    thread->stack_size = stack_size;
+    thread->entry = thread_idle;
+    thread->next = NULL;
+
+    // Initialize the thread's initial CPU context.
+    ctx_init(thread);
+
+    return thread;
 }
 
 thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size) {
@@ -47,18 +103,8 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     // Initialize the initial context.
     cpu_context_t *ctx = (cpu_context_t *)stack_top;
 
-    *ctx = (cpu_context_t){.edi = 0,
-                           .esi = 0,
-                           .ebp = 0,
-                           .esp_dummy = 0,
-                           .ebx = 0,
-                           .edx = 0,
-                           .ecx = 0,
-                           .eax = 0,
-
-                           .eip = (uint32_t)thread_bootstrap,
-                           .cs = 0x08,
-                           .eflags = 0x202};
+    *ctx = (cpu_context_t){
+        .registers = {0}, .eip = (uint32_t)thread_bootstrap, .cs = 0x08, .eflags = 0x202};
 
     t->saved_esp = (uint32_t)ctx;
 
@@ -117,6 +163,12 @@ thread_state_t thread_get_state(thread_t *thread) {
 }
 
 void thread_exit(void) {
-    print("thread_exit");
-    return;
+    cli();
+    thread_t *t = sched_current_thread();
+
+    t->state = THREAD_TERMINATED;
+
+    sched_remove(t);
+
+    // sched_schedule();
 }

@@ -23,6 +23,7 @@
 #include "mm/heap.h"
 
 #include "sched.h"
+#include "thread.h"
 
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
@@ -78,6 +79,8 @@ void kernel_main(boot_info_t *boot_info) {
     current_heap = &k_heap;
     init_heap(current_directory, current_heap);
     KERNEL_INIT_P("Kernal Heap");
+
+    KERNEL_INIT("Scheduler", sched_init);
 
     tty_t tty0;
     tty_init(&tty0);
