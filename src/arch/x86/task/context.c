@@ -12,17 +12,8 @@ void ctx_init(thread_t *thread) {
 
     cpu_context_t *ctx = (cpu_context_t *)stack_top;
 
-    *ctx = (cpu_context_t){.edi = 0,
-                           .esi = 0,
-                           .ebp = 0,
-                           .esp_dummy = 0,
-                           .ebx = 0,
-                           .edx = 0,
-                           .ecx = 0,
-                           .eax = 0,
-                           .eip = (uint32_t)thread_bootstrap,
-                           .cs = 0x08,
-                           .eflags = 0x202};
+    *ctx = (cpu_context_t){
+        .registers = {0}, .eip = (uint32_t)thread_bootstrap, .cs = 0x08, .eflags = 0x202};
 
     thread->saved_esp = (uint32_t)ctx;
 }
@@ -34,14 +25,7 @@ cpu_context_t ctx_current() {
     uint32_t epi = reg_v(REG_EIP);
 
     cpu_context_t ctx = {
-        .edi = r.edi,
-        .esi = r.esi,
-        .ebp = r.ebp,
-        .esp_dummy = r.esp,
-        .ebx = r.ebx,
-        .edx = r.edx,
-        .ecx = r.ecx,
-        .eax = r.eax,
+        .registers = r,
         .eip = epi,
         .cs = 0x08, // hardcoed for this version
         .eflags = flg,
@@ -49,3 +33,5 @@ cpu_context_t ctx_current() {
 
     return ctx;
 }
+
+void ctx_switch(cpu_context_t *old_ctx, cpu_context_t *new_ctx) {}
