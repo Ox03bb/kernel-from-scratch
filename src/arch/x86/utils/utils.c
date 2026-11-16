@@ -19,28 +19,34 @@ void sti(void) { __asm__ volatile("sti"); }
 
 void hlt(void) { __asm__ volatile("hlt"); }
 
-void pushad(void) { __asm__ volatile("pushad"); }
-void pushfd(void) { __asm__ volatile("pushfd"); }
+void pushad(void) { __asm__ volatile("pushal"); }
+void pushfd(void) { __asm__ volatile("pushfl"); }
 
 registers_t pushad_r(void) {
     registers_t registers;
 
-    __asm__ volatile(
-        "pushal\n\t"
-        "movl 0(%%esp), %[edi]\n\t"
-        "movl 4(%%esp), %[esi]\n\t"
-        "movl 8(%%esp), %[ebp]\n\t"
-        "movl 12(%%esp), %[esp_value]\n\t"
-        "movl 16(%%esp), %[ebx]\n\t"
-        "movl 20(%%esp), %[edx]\n\t"
-        "movl 24(%%esp), %[ecx]\n\t"
-        "movl 28(%%esp), %[eax]\n\t"
-        "addl $32, %%esp"
-        : [edi] "=r"(registers.edi), [esi] "=r"(registers.esi), [ebp] "=r"(registers.ebp),
-          [esp_value] "=r"(registers.esp), [ebx] "=r"(registers.ebx), [edx] "=r"(registers.edx),
-          [ecx] "=r"(registers.ecx), [eax] "=r"(registers.eax)
-        :
-        : "memory");
+    __asm__ volatile("pushal\n\t"
+                     "movl 0(%%esp), %%eax\n\t"
+                     "movl %%eax, 0(%%esi)\n\t"
+                     "movl 4(%%esp), %%eax\n\t"
+                     "movl %%eax, 4(%%esi)\n\t"
+                     "movl 8(%%esp), %%eax\n\t"
+                     "movl %%eax, 8(%%esi)\n\t"
+                     "movl 12(%%esp), %%eax\n\t"
+                     "movl %%eax, 12(%%esi)\n\t"
+                     "movl 16(%%esp), %%eax\n\t"
+                     "movl %%eax, 16(%%esi)\n\t"
+                     "movl 20(%%esp), %%eax\n\t"
+                     "movl %%eax, 20(%%esi)\n\t"
+                     "movl 24(%%esp), %%eax\n\t"
+                     "movl %%eax, 24(%%esi)\n\t"
+                     "movl 28(%%esp), %%eax\n\t"
+                     "movl %%eax, 28(%%esi)\n\t"
+                     "movl 4(%%esp), %%esi\n\t"
+                     "addl $32, %%esp"
+                     :
+                     : "S"(&registers)
+                     : "eax", "memory");
 
     return registers;
 }
@@ -53,8 +59,8 @@ uint32_t pushfd_r(void) {
     return flags;
 }
 
-void popad(void) { __asm__ volatile("popad"); }
-void popfd(void) { __asm__ volatile("popfd"); }
+void popad(void) { __asm__ volatile("popal"); }
+void popfd(void) { __asm__ volatile("popfl"); }
 
 void io_wait(void) { // delay for I/O operation
 

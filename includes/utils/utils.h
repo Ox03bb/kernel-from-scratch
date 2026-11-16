@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "thread.h"
 #include "types.h"
 
 void outb(uint16_t port, uint8_t value);
