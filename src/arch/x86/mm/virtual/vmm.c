@@ -280,12 +280,12 @@ void vmm_init(void) {
     if (vmm_map_bootstrap_memory(current_directory) != 0)
         panic("Failed to map kernel Stack");
 
-    if (vmm_map_bootstrap_memory(current_directory) != 0)
-        panic("Failed to map bootstrap memory");
-
     if (vmm_map_vga(current_directory) != 0)
         panic("Failed to map VGA");
 
     enable_paging((uint32_t)current_directory);
     recursive_mapping_ready = true;
 }
+
+
+

@@ -52,10 +52,6 @@ void kernel_main(boot_info_t *boot_info) {
 
     KERNEL_INIT("IDT - Interrupt Descriptor Table", idt_init);
 
-    KERNEL_INIT("Scheduler", sched_init);
-
-    KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
-
     KERNEL_INIT("PS/2 controller", ps2_init);
     KERNEL_INIT("Keyboard Driver", init_keyboard);
     pic_clear_mask(1);
@@ -81,6 +77,10 @@ void kernel_main(boot_info_t *boot_info) {
     current_heap = &k_heap;
     init_heap(current_directory, current_heap);
     KERNEL_INIT_P("Kernal Heap");
+
+    KERNEL_INIT("Scheduler", sched_init);
+
+    KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
 
     tty_t tty0;
     tty_init(&tty0);
