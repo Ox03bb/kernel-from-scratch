@@ -11,6 +11,8 @@
 
 uint32_t last_id = 1;
 
+extern scheduler_t *sched;
+
 void thread_bootstrap(void) {
     thread_t *current = sched_current_thread();
 
@@ -72,15 +74,51 @@ thread_t *thread_create_idle(size_t stack_size) {
     return thread;
 }
 
+void sched_schedule(void) {
+    thread_t *current = sched->current_thread;
+
+    // Requeue the current thread if it is still runnable.
+    if (current->state == THREAD_RUNNING) {
+        current->state = THREAD_READY;
+
+        if (current != sched->idle_thread)
+            sched_add(current);
+    }
+
+    // Find the next runnable thread.
+    thread_t *next = NULL;
+
+    while (!sq_is_empty(sched)) {
+        next = sched_next();
+
+        if (next->state == THREAD_READY)
+            break;
+
+        next = NULL;
+    }
+
+    if (next == NULL)
+        next = sched->idle_thread;
+
+    next->state = THREAD_RUNNING;
+
+    sched->current_thread = next;
+
+    if (current != next)
+        ctx_switch(current, next);
+}
+
 thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size) {
-    if (!entry || stack_size < sizeof(cpu_context_t))
+    if (!entry || stack_size < 4096)
         return NULL;
 
     thread_t *t = malloc(sizeof(thread_t));
+
     if (!t)
         return NULL;
 
     t->stack = malloc(stack_size);
+
     if (!t->stack) {
         free(t);
         return NULL;
@@ -89,24 +127,26 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     t->tid = ++last_id;
     t->name = name;
     t->state = THREAD_READY;
-
     t->stack_size = stack_size;
     t->entry = entry;
     t->next = NULL;
 
-    // Calculate aligned stack top.
+    // Align stack top to 16 bytes.
     uintptr_t stack_top = ((uintptr_t)t->stack + stack_size) & ~(uintptr_t)0xF;
 
-    // Reserve space for the initial CPU context.
+    // Reserve initial context.
     stack_top -= sizeof(cpu_context_t);
 
-    // Initialize the initial context.
     cpu_context_t *ctx = (cpu_context_t *)stack_top;
 
     *ctx = (cpu_context_t){
-        .registers = {0}, .eip = (uint32_t)thread_bootstrap, .cs = 0x08, .eflags = 0x202};
+        .registers =
+            {.edi = 0, .esi = 0, .ebp = 0, .esp = 0, .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
 
-    t->saved_esp = (uint32_t)ctx;
+        .eflags = 0x202,
+        .eip = (uint32_t)thread_bootstrap};
+
+    t->saved_esp = (uintptr_t)ctx;
 
     return t;
 }
@@ -162,13 +202,12 @@ thread_state_t thread_get_state(thread_t *thread) {
     return thread->state;
 }
 
-void thread_exit(void) {
-    cli();
-    thread_t *t = sched_current_thread();
+_Noreturn void thread_exit(void) {
+    thread_t *current = sched_current_thread();
 
-    t->state = THREAD_TERMINATED;
+    current->state = THREAD_TERMINATED;
 
-    sched_remove(t);
+    sched_schedule();
 
-    // sched_schedule();
+    __builtin_unreachable();
 }

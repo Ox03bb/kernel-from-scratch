@@ -3,6 +3,9 @@
 
 #include "utils/utils.h"
 
+//! for this version will not use the registers_t
+//! to change ctx, w'll use the thread stack directly
+
 void ctx_init(thread_t *thread) {
     uintptr_t stack_top = (uintptr_t)thread->stack + thread->stack_size;
 
@@ -34,4 +37,13 @@ cpu_context_t ctx_current() {
     return ctx;
 }
 
-void ctx_switch(cpu_context_t *old_ctx, cpu_context_t *new_ctx) {}
+void ctx_switch(thread_t *old_t, thread_t *new_t) {
+
+    if (!new_t)
+        return;
+
+    if (old_t)
+        old_t->saved_esp = ctx_save();
+
+    ctx_load(new_t->saved_esp);
+}

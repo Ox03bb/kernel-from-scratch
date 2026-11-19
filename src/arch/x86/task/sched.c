@@ -6,8 +6,6 @@
 
 extern scheduler_t *sched;
 
-uint32_t tick_count = 0;
-
 void sched_init(void) {
     cli();
 
@@ -39,7 +37,28 @@ void sched_shutdown(void) {
     sched->enabled = false;
 }
 
-void sched_tick(void) { tick_count++; }
+void sched_tick(void) {
+    if (!sched->enabled)
+        return;
+
+    thread_t *current = sched->current_thread;
+
+    if (current == NULL)
+        return;
+
+    if (current == sched->idle_thread) {
+        if (!sq_is_empty(sched))
+            sched->need_resched = true;
+
+        return;
+    }
+
+    if (current->state != THREAD_RUNNING)
+        return;
+
+    if (--sched->remaining_ticks == 0)
+        sched->need_resched = true;
+}
 
 int8_t sched_add(thread_t *thread) {
     if (thread == NULL)
@@ -82,4 +101,4 @@ thread_t *sched_next(void) {
 
 thread_t *sched_current_thread(void) { return sched->current_thread; }
 bool sched_is_enabled(void) { return sched->enabled; }
-uint32_t sched_get_tick_count(void) { return tick_count; }
+uint32_t sched_get_remaining_ticks(void) { return sched->remaining_ticks; }

@@ -8,7 +8,9 @@ void ctx_init(thread_t *thread);
 
 cpu_context_t ctx_current();
 
-void ctx_save(registers_t *ctx);
-void ctx_load(registers_t *ctx);
+uint32_t ctx_save(void);
+void ctx_load(uint32_t esp);
+
+void ctx_switch(thread_t *old_t, thread_t *new_t);
 
 #endif

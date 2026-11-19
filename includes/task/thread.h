@@ -51,7 +51,7 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
 
 int8_t thread_destroy(thread_t *thread);
 
-void thread_exit(void); //! not implimented
+_Noreturn void thread_exit(void);
 
 /* Thread state management */
 int8_t thread_chstt(thread_t *thread, thread_state_t s);

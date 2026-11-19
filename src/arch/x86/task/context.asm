@@ -1,15 +1,15 @@
+[BITS 32]
+
 global ctx_save
 global ctx_load
 
 ctx_save:
     pushad
-
-    mov eax, [esp + 36] ; ctx argument
-    mov [eax], esp      ; Save stack pointer
-    ret
+    
+    mov eax, esp
+    ret       
 
 ctx_load:
-    mov eax, [esp + 4]  ; ctx argument
-    mov esp, [eax]      ; Load saved stack pointer
-    popad
-    iretd
+    mov esp, [esp + 4]  ; Get saved ESP argument
+    popad               ; Restore general-purpose registers
+    ret                 ; Return to the saved execution address

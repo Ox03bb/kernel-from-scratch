@@ -14,7 +14,10 @@ typedef struct {
     thread_t *idle_thread;
 
     uint32_t next_tid;
+    bool need_resched;
     uint32_t time_quantum;
+
+    uint32_t remaining_ticks;
 
     bool enabled;
 } scheduler_t;
