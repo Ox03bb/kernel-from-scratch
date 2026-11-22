@@ -14,6 +14,8 @@ void sched_init(void) {
     sched->enabled = false;
 
     sched->time_quantum = 10;
+    sched->remaining_ticks = sched->time_quantum;
+    sched->need_resched = false;
     sched->ready_queue = NULL;
     sched->next_tid = 0;
 

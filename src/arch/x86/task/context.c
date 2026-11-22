@@ -1,7 +1,10 @@
 #include "context.h"
+#include "heap.h"
 #include "thread.h"
 
 #include "utils/utils.h"
+
+extern interrupt_frame_t *active_irq_frame;
 
 //! for this version will not use the registers_t
 //! to change ctx, w'll use the thread stack directly
@@ -11,12 +14,15 @@ void ctx_init(thread_t *thread) {
 
     stack_top &= ~(uintptr_t)0xF;
 
-    stack_top -= sizeof(cpu_context_t);
+    stack_top -= sizeof(interrupt_frame_t);
 
-    cpu_context_t *ctx = (cpu_context_t *)stack_top;
+    interrupt_frame_t *ctx = (interrupt_frame_t *)stack_top;
 
-    *ctx = (cpu_context_t){
-        .registers = {0}, .eip = (uint32_t)thread_bootstrap, .cs = 0x08, .eflags = 0x202};
+    *ctx = (interrupt_frame_t){.registers = {0},
+                               .vector = 0,
+                               .eip = (uint32_t)thread_bootstrap,
+                               .cs = 0x08,
+                               .eflags = 0x202};
 
     thread->saved_esp = (uint32_t)ctx;
 }
@@ -42,8 +48,17 @@ void ctx_switch(thread_t *old_t, thread_t *new_t) {
     if (!new_t)
         return;
 
-    if (old_t)
-        old_t->saved_esp = ctx_save();
+    if (old_t && active_irq_frame) {
+        if (old_t->saved_esp == 0)
+            old_t->saved_esp = (uint32_t)malloc(sizeof(interrupt_frame_t));
+
+        if (old_t->saved_esp != 0) {
+            uint32_t *destination = (uint32_t *)old_t->saved_esp;
+            uint32_t *source = (uint32_t *)active_irq_frame;
+            for (uint32_t i = 0; i < sizeof(interrupt_frame_t) / sizeof(uint32_t); i++)
+                destination[i] = source[i];
+        }
+    }
 
     ctx_load(new_t->saved_esp);
 }

@@ -134,17 +134,19 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     // Align stack top to 16 bytes.
     uintptr_t stack_top = ((uintptr_t)t->stack + stack_size) & ~(uintptr_t)0xF;
 
-    // Reserve initial context.
-    stack_top -= sizeof(cpu_context_t);
+    // Reserve initial interrupt context.
+    stack_top -= sizeof(interrupt_frame_t);
 
-    cpu_context_t *ctx = (cpu_context_t *)stack_top;
+    interrupt_frame_t *ctx = (interrupt_frame_t *)stack_top;
 
-    *ctx = (cpu_context_t){
+    *ctx = (interrupt_frame_t){
         .registers =
             {.edi = 0, .esi = 0, .ebp = 0, .esp = 0, .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
 
+        .vector = 0,
         .eflags = 0x202,
-        .eip = (uint32_t)thread_bootstrap};
+        .eip = (uint32_t)thread_bootstrap,
+        .cs = 0x08};
 
     t->saved_esp = (uintptr_t)ctx;
 

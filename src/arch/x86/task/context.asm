@@ -5,11 +5,12 @@ global ctx_load
 
 ctx_save:
     pushad
-    
     mov eax, esp
-    ret       
-
+    add esp, 32
+    ret
+    
 ctx_load:
     mov esp, [esp + 4]  ; Get saved ESP argument
     popad               ; Restore general-purpose registers
-    ret                 ; Return to the saved execution address
+    add esp, 4         ; Skip the saved IRQ vector
+    iretd               ; Restore EIP, CS, and EFLAGS

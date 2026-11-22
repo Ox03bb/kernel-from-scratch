@@ -19,4 +19,12 @@ typedef struct {
     uint32_t eax;
 } registers_t;
 
+typedef struct {
+    registers_t registers;
+    uint32_t vector;
+    uint32_t eip;
+    uint32_t cs;
+    uint32_t eflags;
+} interrupt_frame_t;
+
 #endif

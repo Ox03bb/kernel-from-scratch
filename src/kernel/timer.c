@@ -16,13 +16,7 @@ void timer_init(uint32_t frequency) {
 
 void timer_irq_handler(void) {
     ticks++;
-
     sched_tick();
-    if (sched->need_resched) {
-        sched->need_resched = false;
-        sched->remaining_ticks = sched->time_quantum;
-        sched_schedule();
-    }
 }
 
 uint32_t timer_get_ticks(void) { return ticks; }

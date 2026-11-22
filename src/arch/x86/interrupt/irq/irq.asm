@@ -20,6 +20,7 @@ global irq15
 global irq_table
 
 extern irq_handler
+extern active_irq_frame
 
 
 ; ============================================================
@@ -114,6 +115,8 @@ irq_common_stub:
 
     ; Save all general-purpose registers
     pusha
+    mov eax, esp
+    mov [active_irq_frame], eax
 
     ; After PUSHA:
     ;

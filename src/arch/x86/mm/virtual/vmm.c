@@ -286,6 +286,3 @@ void vmm_init(void) {
     enable_paging((uint32_t)current_directory);
     recursive_mapping_ready = true;
 }
-
-
-
