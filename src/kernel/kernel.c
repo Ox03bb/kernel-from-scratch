@@ -39,17 +39,14 @@ extern uintptr_t kernel_end_addr;
 
 // heap_t kheap;
 
-void t1() {
-    int c = 0;
-    while (c < 10) {
-        printf("thread 1 ");
-        c++;
-    }
+void t1(int number, int count, int delay) {
+    for (int i = 0; i < 100; i++)
+        printf("thread %d\n", i);
 }
 void t2() {
     int i = 0;
-    while (i < 10) {
-        printf("thread 2 ");
+    while (i < 100) {
+        printf("thread 2 \n");
         i++;
     }
 }
@@ -101,19 +98,12 @@ void kernel_main(boot_info_t *boot_info) {
     tty_init(&tty0);
     KERNEL_INIT_P("TTY - Teletypewriter 0");
 
-    thread_t *t01 = thread_create("thread 1", t1, 4096);
-    thread_t *t02 = thread_create("thread 2", t2, 4096);
-
-    if (t01 == NULL || sched_add(t01) != 0)
-        panic("Failed to create thread 1");
-
-    if (t02 == NULL || sched_add(t02) != 0)
-        panic("Failed to create thread 2");
+    thread_t *t01 = thread_spawn(t1, 5, 10, 1);
+    thread_t *t02 = thread_spawn(t2, NULL);
 
     sched_start();
 
     while (1) {
-        // tty_process_events(&tty0);
     }
 
     // print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");

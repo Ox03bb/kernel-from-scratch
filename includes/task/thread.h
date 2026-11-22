@@ -9,6 +9,7 @@
 #include "utils/types.h"
 
 #define THREAD_INVALID_ID UINT32_MAX
+#define THREAD_MAX_ARGS    8
 
 /* Thread states */
 typedef enum {
@@ -40,6 +41,8 @@ typedef struct thread {
     size_t stack_size;
 
     void (*entry)(void);
+    uint32_t arg_count;
+    uintptr_t args[8];
 
     struct thread *next;
 } thread_t;
@@ -48,6 +51,11 @@ extern uint32_t last_id;
 /* Thread lifecycle */
 
 thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size);
+
+thread_t *thread_spawn_impl(void (*entry)(void *), ...);
+
+#define thread_spawn(entry, ...)                                                               \
+    thread_spawn_impl((void (*)(void *))(entry), ##__VA_ARGS__, (void *)UINTPTR_MAX)
 
 int8_t thread_destroy(thread_t *thread);
 

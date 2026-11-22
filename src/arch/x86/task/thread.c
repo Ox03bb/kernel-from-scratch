@@ -8,6 +8,8 @@
 
 #include "context.h"
 #include "sched.h"
+#include "panic.h"
+#include <stdarg.h>
 
 uint32_t last_id = 1;
 
@@ -16,7 +18,50 @@ extern scheduler_t *sched;
 void thread_bootstrap(void) {
     thread_t *current = sched_current_thread();
 
-    current->entry();
+    switch (current->arg_count) {
+    case 0:
+        ((void (*)(void))current->entry)();
+        break;
+    case 1:
+        ((void (*)(uintptr_t))current->entry)(current->args[0]);
+        break;
+    case 2:
+        ((void (*)(uintptr_t, uintptr_t))current->entry)(current->args[0],
+                                                         current->args[1]);
+        break;
+    case 3:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t))current->entry)(
+            current->args[0], current->args[1], current->args[2]);
+        break;
+    case 4:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t))current->entry)(
+            current->args[0], current->args[1], current->args[2], current->args[3]);
+        break;
+    case 5:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t))current->entry)(
+            current->args[0], current->args[1], current->args[2], current->args[3],
+            current->args[4]);
+        break;
+    case 6:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t))current
+             ->entry)(current->args[0], current->args[1], current->args[2],
+                      current->args[3], current->args[4], current->args[5]);
+        break;
+    case 7:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
+                   uintptr_t))current->entry)(
+            current->args[0], current->args[1], current->args[2], current->args[3],
+            current->args[4], current->args[5], current->args[6]);
+        break;
+    case 8:
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
+                   uintptr_t, uintptr_t))current->entry)(
+            current->args[0], current->args[1], current->args[2], current->args[3],
+            current->args[4], current->args[5], current->args[6], current->args[7]);
+        break;
+    default:
+        panic("Thread argument count exceeds supported limit");
+    }
 
     thread_exit();
 }
@@ -42,6 +87,9 @@ thread_t *thread_create_bootstrap(void) {
     thread->stack_size = 0;
 
     thread->entry = NULL;
+    thread->arg_count = 0;
+    for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
+        thread->args[i] = 0;
     thread->next = NULL;
 
     return thread;
@@ -66,6 +114,9 @@ thread_t *thread_create_idle(size_t stack_size) {
 
     thread->stack_size = stack_size;
     thread->entry = thread_idle;
+    thread->arg_count = 0;
+    for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
+        thread->args[i] = 0;
     thread->next = NULL;
 
     // Initialize the thread's initial CPU context.
@@ -129,6 +180,9 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     t->state = THREAD_READY;
     t->stack_size = stack_size;
     t->entry = entry;
+    t->arg_count = 0;
+    for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
+        t->args[i] = 0;
     t->next = NULL;
 
     // Align stack top to 16 bytes.
@@ -151,6 +205,40 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     t->saved_esp = (uintptr_t)ctx;
 
     return t;
+}
+
+thread_t *thread_spawn_impl(void (*entry)(void *), ...) {
+    va_list args;
+    va_start(args, entry);
+
+    uint32_t arg_count = 0;
+    uintptr_t values[THREAD_MAX_ARGS];
+
+    while (arg_count < THREAD_MAX_ARGS) {
+        uintptr_t value = va_arg(args, uintptr_t);
+        if (value == UINTPTR_MAX)
+            break;
+
+        values[arg_count++] = value;
+    }
+
+    va_end(args);
+
+    thread_t *thread = thread_create(NULL, (void (*)(void))entry, 4096);
+
+    if (thread == NULL)
+        return NULL;
+
+    thread->arg_count = arg_count;
+    for (uint32_t i = 0; i < arg_count; i++)
+        thread->args[i] = values[i];
+
+    if (sched_add(thread) != 0) {
+        thread_destroy(thread);
+        return NULL;
+    }
+
+    return thread;
 }
 
 int8_t thread_destroy(thread_t *thread) {
