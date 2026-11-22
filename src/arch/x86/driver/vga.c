@@ -124,19 +124,15 @@ void vga_print(const char *str) {
         return;
     }
 
-    for (uint32_t i = 0; str[i] != '\0'; i++) {
-        if (str[i] == '\n') {
-            uint8_t y = vga_get_cursor_y() + 1;
-            if (y >= VGA_HEIGHT) {
-                vga_scroll_up();
-            } else {
-                vga_set_cursor(0, y);
-            }
+    uint32_t flags = read_eflags();
+    cli();
 
-        } else {
-            vga_print_char(str[i]);
-        }
+    for (uint32_t i = 0; str[i] != '\0'; i++) {
+        vga_print_char(str[i]);
     }
+
+    if (flags & 0x200)
+        sti();
 }
 
 void vga_print_hex(uint32_t value) {
