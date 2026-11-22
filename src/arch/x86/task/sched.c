@@ -19,7 +19,8 @@ void sched_init(void) {
     sched->ready_queue = NULL;
     sched->next_tid = 0;
 
-    sched->current_thread = thread_create_bootstrap();
+    sched->bootstrap_thread = thread_create_bootstrap();
+    sched->current_thread = sched->bootstrap_thread;
 
     sched->idle_thread = thread_create_idle(4096);
 }

@@ -18,11 +18,8 @@ void ctx_init(thread_t *thread) {
 
     interrupt_frame_t *ctx = (interrupt_frame_t *)stack_top;
 
-    *ctx = (interrupt_frame_t){.registers = {0},
-                               .vector = 0,
-                               .eip = (uint32_t)thread_bootstrap,
-                               .cs = 0x08,
-                               .eflags = 0x202};
+    *ctx = (interrupt_frame_t){
+        .registers = {0}, .vector = 0, .eip = (uint32_t)thread_idle, .cs = 0x08, .eflags = 0x202};
 
     thread->saved_esp = (uint32_t)ctx;
 }

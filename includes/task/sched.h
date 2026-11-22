@@ -9,6 +9,7 @@
 /* Scheduler structure */
 typedef struct {
     thread_t *current_thread;
+    thread_t *bootstrap_thread;
     thread_t *ready_queue;
 
     thread_t *idle_thread;

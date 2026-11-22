@@ -42,14 +42,14 @@ extern uintptr_t kernel_end_addr;
 void t1() {
     int c = 0;
     while (c < 10) {
-        printf("\nthread 1");
+        printf("thread 1 ");
         c++;
     }
 }
 void t2() {
     int i = 0;
     while (i < 10) {
-        printf("\nthread 2");
+        printf("thread 2 ");
         i++;
     }
 }
@@ -104,10 +104,11 @@ void kernel_main(boot_info_t *boot_info) {
     thread_t *t01 = thread_create("thread 1", t1, 4096);
     thread_t *t02 = thread_create("thread 2", t2, 4096);
 
-    sched_add(t01);
-    sched_add(t02);
-    // if (t01 == NULL || sched_add(t01) != 0)
-    //     panic("Failed to create thread 1");
+    if (t01 == NULL || sched_add(t01) != 0)
+        panic("Failed to create thread 1");
+
+    if (t02 == NULL || sched_add(t02) != 0)
+        panic("Failed to create thread 2");
 
     sched_start();
 
@@ -115,6 +116,6 @@ void kernel_main(boot_info_t *boot_info) {
         // tty_process_events(&tty0);
     }
 
-    print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
+    // print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
     return;
 }

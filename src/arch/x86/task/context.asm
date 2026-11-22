@@ -10,7 +10,7 @@ ctx_save:
     ret
     
 ctx_load:
-    mov esp, [esp + 4]  ; Get saved ESP argument
-    popad               ; Restore general-purpose registers
+    mov esp, [esp + 4]  ; Frame pointer saved for this thread
+    popad               ; Restore the saved general-purpose registers
     add esp, 4         ; Skip the saved IRQ vector
     iretd               ; Restore EIP, CS, and EFLAGS

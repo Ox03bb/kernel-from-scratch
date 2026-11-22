@@ -81,7 +81,7 @@ void sched_schedule(void) {
     if (current->state == THREAD_RUNNING) {
         current->state = THREAD_READY;
 
-        if (current != sched->idle_thread)
+        if (current != sched->idle_thread && current != sched->bootstrap_thread)
             sched_add(current);
     }
 
