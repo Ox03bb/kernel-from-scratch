@@ -1,5 +1,6 @@
 #include "fs.h"
 #include "shell/builtins/builtins.h"
+#include "stdio.h"
 
 int shell_builtin_ls(shell_context_t *context, int argc, char *argv[]) {
     char resolved[SHELL_PATH_SIZE];
@@ -20,11 +21,14 @@ int shell_builtin_ls(shell_context_t *context, int argc, char *argv[]) {
     bool first = true;
     while (child != NULL) {
         if (!first)
-            shell_builtin_write(context, "  ");
-        shell_builtin_write(context, child->name);
+            printf("  ");
+        if (child->type == FS_DIR)
+            printf("\033[14:00m%s\033[0m", child->name);
+        else
+            printf("%s", child->name);
         first = false;
         child = child->next;
     }
-    shell_builtin_write(context, "\n");
+    printf("\n");
     return 0;
 }
