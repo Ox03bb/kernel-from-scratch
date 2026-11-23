@@ -30,9 +30,11 @@ SECTIONS
 
     .bss : ALIGN(16)
     {
+        kernel_bss_start = .;
         *(COMMON)
         *(.bss)
         *(.bss.*)
+        kernel_bss_end = .;
     }
 
     kernel_end_addr = .;
