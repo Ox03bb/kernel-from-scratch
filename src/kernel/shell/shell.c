@@ -3,6 +3,7 @@
 #include "shell/builtins/builtins.h"
 #include "shell/command.h"
 #include "shell/parser.h"
+#include "stdio.h"
 #include "string.h"
 
 static void copy_string(char *destination, const char *source, size_t size) {
@@ -194,7 +195,7 @@ int shell_init(shell_context_t *context, tty_t *tty) {
     context->config.echo = true;
     context->config.show_prompt = true;
     tty->echo = context->config.echo;
-    copy_string(context->config.prompt, " $ ", sizeof(context->config.prompt));
+    copy_string(context->config.prompt, "$ ", sizeof(context->config.prompt));
 
     shell_env_set(context, "USER", "root");
     shell_env_set(context, "HOME", "/root");
@@ -211,13 +212,12 @@ void shell_prompt(shell_context_t *context) {
         return;
     if (!context->config.show_prompt)
         return;
-    
-    context->tty->method.write(context->tty, "\n[ ");
-    context->tty->method.write(context->tty, context->currentDir);
-    context->tty->method.write(context->tty, " ]\n");
-    context->tty->method.write(context->tty, context->name);
-    context->tty->method.write(context->tty, "@kernal-fs");
-    context->tty->method.write(context->tty, context->config.prompt);
+
+    printf("\n\033[0m[ \033[02:00m%s\033[0m ]\n"
+           "\033[11:00m%s\033[14:00m@kernel-fs\033[0m %s",
+           context->currentDir,
+           context->name,
+           context->config.prompt);
 }
 
 void shell_process(shell_context_t *context) {
