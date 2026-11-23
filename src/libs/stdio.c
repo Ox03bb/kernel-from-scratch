@@ -8,6 +8,7 @@
 #include "string.h"
 
 #include "stdio.h"
+#include "utils/utils.h"
 
 #define FORMATTER_BUFFER_SIZE 1024
 static char buffer[FORMATTER_BUFFER_SIZE];
@@ -294,6 +295,9 @@ static size_t print_sgr(const char *sequence, size_t length) {
 }
 
 void print(const char *str) {
+    uint32_t flags = read_eflags();
+    cli();
+
     while (*str) {
         if (*str == '\033' && str[1] == '[') {
             const char *sequence = str + 2;
@@ -314,11 +318,21 @@ void print(const char *str) {
 
         vga_print_char(*str++);
     }
+
+    if (flags & 0x200)
+        sti();
 }
 
 void println(const char *str) {
-    vga_print("\n");
-    vga_print(str);
+    uint32_t flags = read_eflags();
+    cli();
+
+    vga_print_char('\n');
+    while (*str)
+        vga_print_char(*str++);
+
+    if (flags & 0x200)
+        sti();
 }
 
 void print_char(char c) { vga_print_char(c); }

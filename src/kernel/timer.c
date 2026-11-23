@@ -2,15 +2,22 @@
 #include "pit.h"
 #include "vga.h"
 
+#include "sched.h"
+
 static uint32_t ticks = 0;
 static uint32_t timer_frequency = 0;
+
+extern scheduler_t *sched;
 
 void timer_init(uint32_t frequency) {
     timer_frequency = frequency;
     pit_init(frequency);
 }
 
-void timer_irq_handler(void) { ticks++; }
+void timer_irq_handler(void) {
+    ticks++;
+    sched_tick();
+}
 
 uint32_t timer_get_ticks(void) { return ticks; }
 

@@ -22,6 +22,9 @@
 
 #include "mm/heap.h"
 
+#include "sched.h"
+#include "thread.h"
+
 #include "keyboard/event_queue.h"
 #include "keyboard/handler.h"
 
@@ -29,10 +32,24 @@ uint8_t pmm_bitmap[BITMAP_SIZE];
 
 heap_t k_heap;
 
+scheduler_t *sched;
+
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
 
 // heap_t kheap;
+
+void t1(int number, int count, int delay) {
+    for (int i = 0; i < 1000; i++)
+        printf("thread %d \n", i);
+}
+void t2(void) {
+    int i = 0;
+    while (i < 100) {
+        printf("thread 2  ");
+        i++;
+    }
+}
 
 void kernel_main(boot_info_t *boot_info) {
 
@@ -46,8 +63,6 @@ void kernel_main(boot_info_t *boot_info) {
     KERNEL_INIT("PIC - Programmable Interrupt Controller", pic_init);
 
     KERNEL_INIT("IDT - Interrupt Descriptor Table", idt_init);
-
-    KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
 
     KERNEL_INIT("PS/2 controller", ps2_init);
     KERNEL_INIT("Keyboard Driver", init_keyboard);
@@ -69,20 +84,28 @@ void kernel_main(boot_info_t *boot_info) {
     pmm_reserve((uintptr_t)&kernel_start_addr, (uintptr_t)&kernel_end_addr);
     KERNEL_INIT_P("Reserved kernel memory");
 
-    KERNEL_INIT("Virtual Memory & Paging ", vmm_init);
+    KERNEL_INIT("VMM - Virtual Memory & Paging ", vmm_init);
 
     current_heap = &k_heap;
     init_heap(current_directory, current_heap);
-
     KERNEL_INIT_P("Kernal Heap");
+
+    KERNEL_INIT("Scheduler", sched_init);
+
+    KERNEL_INIT("PIT - Programmable Interval Timer", timer_setup); // 1000 Hz
 
     tty_t tty0;
     tty_init(&tty0);
+    KERNEL_INIT_P("TTY - Teletypewriter 0");
+
+    thread_t *t01 = thread_spawn(t1, 5, 10, 1);
+    thread_t *t02 = thread_spawn(t2);
+
+    sched_start();
 
     while (1) {
-        tty_process_events(&tty0);
     }
 
-    print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
+    // print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
     return;
 }

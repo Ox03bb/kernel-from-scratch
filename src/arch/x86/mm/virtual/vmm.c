@@ -28,16 +28,6 @@ static pte_t *vmm_get_page_table(pde_t *directory, uint32_t pd, pde_t *pde) {
     return (pte_t *)(pde->addr << 12);
 }
 
-static int vmm_map_bootstrap_memory(pde_t *directory) {
-    for (uintptr_t addr = BOOTSTRAP_MEMORY_START; addr < BOOTSTRAP_MEMORY_END; addr += PAGE_SIZE) {
-        if (vmm_map_page(directory, addr, addr, VMM_PRESENT | VMM_WRITABLE) != 0) {
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
 void enable_paging(uint32_t page_dir) {
     asm volatile("mov %0, %%cr3\n\t"
                  "mov %%cr0, %%eax\n\t"
@@ -288,7 +278,7 @@ void vmm_init(void) {
         panic("Failed to map kernel");
 
     if (vmm_map_bootstrap_memory(current_directory) != 0)
-        panic("Failed to map bootstrap memory");
+        panic("Failed to map kernel Stack");
 
     if (vmm_map_vga(current_directory) != 0)
         panic("Failed to map VGA");
