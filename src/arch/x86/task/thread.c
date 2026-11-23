@@ -88,6 +88,8 @@ thread_t *thread_create_bootstrap(void) {
 
     thread->entry = NULL;
     thread->arg_count = 0;
+    thread->saved_esp = 0;
+    thread->saved_frame = NULL;
     for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
         thread->args[i] = 0;
     thread->next = NULL;
@@ -115,6 +117,7 @@ thread_t *thread_create_idle(size_t stack_size) {
     thread->stack_size = stack_size;
     thread->entry = thread_idle;
     thread->arg_count = 0;
+    thread->saved_frame = NULL;
     for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
         thread->args[i] = 0;
     thread->next = NULL;
@@ -181,27 +184,31 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     t->stack_size = stack_size;
     t->entry = entry;
     t->arg_count = 0;
+    t->saved_frame = NULL;
     for (uint32_t i = 0; i < THREAD_MAX_ARGS; i++)
         t->args[i] = 0;
     t->next = NULL;
 
-    // Align stack top to 16 bytes.
-    uintptr_t stack_top = ((uintptr_t)t->stack + stack_size) & ~(uintptr_t)0xF;
+    interrupt_frame_t *ctx = malloc(sizeof(interrupt_frame_t));
 
-    // Reserve initial interrupt context.
-    stack_top -= sizeof(interrupt_frame_t);
+    if (ctx == NULL) {
+        free(t->stack);
+        free(t);
+        return NULL;
+    }
 
-    interrupt_frame_t *ctx = (interrupt_frame_t *)stack_top;
+    /* This frame is disjoint from the thread stack. */
+    uintptr_t stack_top = ((uintptr_t)t->stack + t->stack_size) & ~(uintptr_t)0xF;
 
     *ctx = (interrupt_frame_t){
         .registers =
-            {.edi = 0, .esi = 0, .ebp = 0, .esp = 0, .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
+            {.edi = 0, .esi = 0, .ebp = 0, .esp = (uint32_t)stack_top, .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
 
         .vector = 0,
         .eflags = 0x202,
         .eip = (uint32_t)thread_bootstrap,
         .cs = 0x08};
-
+    t->saved_frame = ctx;
     t->saved_esp = (uintptr_t)ctx;
 
     return t;
@@ -245,6 +252,7 @@ int8_t thread_destroy(thread_t *thread) {
     if (thread == NULL)
         return -1;
 
+    free(thread->saved_frame);
     free(thread->stack);
     free(thread);
 

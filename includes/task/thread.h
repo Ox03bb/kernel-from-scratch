@@ -36,6 +36,7 @@ typedef struct thread {
     thread_state_t state;
 
     uint32_t saved_esp;
+    interrupt_frame_t *saved_frame;
 
     void *stack;
     size_t stack_size;

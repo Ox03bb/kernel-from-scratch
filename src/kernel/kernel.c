@@ -40,13 +40,13 @@ extern uintptr_t kernel_end_addr;
 // heap_t kheap;
 
 void t1(int number, int count, int delay) {
-    for (int i = 0; i < 100; i++)
-        printf("thread %d\n", i);
+    for (int i = 0; i < 1000; i++)
+        printf("thread %d \n", i);
 }
-void t2() {
+void t2(void) {
     int i = 0;
     while (i < 100) {
-        printf("thread 2 \n");
+        printf("thread 2  ");
         i++;
     }
 }
@@ -99,7 +99,7 @@ void kernel_main(boot_info_t *boot_info) {
     KERNEL_INIT_P("TTY - Teletypewriter 0");
 
     thread_t *t01 = thread_spawn(t1, 5, 10, 1);
-    thread_t *t02 = thread_spawn(t2, NULL);
+    thread_t *t02 = thread_spawn(t2);
 
     sched_start();
 
