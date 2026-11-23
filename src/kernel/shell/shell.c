@@ -187,14 +187,14 @@ int shell_init(shell_context_t *context, tty_t *tty) {
         ((volatile char *)context)[i] = 0;
 
     context->tty = tty;
-    copy_string(context->name, "kernel", sizeof(context->name));
+    copy_string(context->name, "Ali", sizeof(context->name));
     copy_string(context->user, "root", sizeof(context->user));
     context->currentDir[0] = '/';
     context->currentDir[1] = '\0';
     context->config.echo = true;
     context->config.show_prompt = true;
     tty->echo = context->config.echo;
-    copy_string(context->config.prompt, "$ ", sizeof(context->config.prompt));
+    copy_string(context->config.prompt, " $ ", sizeof(context->config.prompt));
 
     shell_env_set(context, "USER", "root");
     shell_env_set(context, "HOME", "/root");
@@ -211,9 +211,12 @@ void shell_prompt(shell_context_t *context) {
         return;
     if (!context->config.show_prompt)
         return;
-    context->tty->method.write(context->tty, context->name);
-    context->tty->method.write(context->tty, ":");
+    
+    context->tty->method.write(context->tty, "\n[ ");
     context->tty->method.write(context->tty, context->currentDir);
+    context->tty->method.write(context->tty, " ]\n");
+    context->tty->method.write(context->tty, context->name);
+    context->tty->method.write(context->tty, "@kernal-fs");
     context->tty->method.write(context->tty, context->config.prompt);
 }
 

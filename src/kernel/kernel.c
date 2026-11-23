@@ -6,6 +6,7 @@
 #include "ps2.h"
 
 #include "utils/kernal_utils.h"
+#include "utils/utils.h"
 
 #include "keyboard.h"
 #include "vga.h"
@@ -45,6 +46,11 @@ extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
 
 // heap_t kheap;
+
+static void shell_thread_entry(void) {
+    while (1)
+        shell_process(&shell);
+}
 
 void t1(int number, int count, int delay) {
     for (int i = 0; i < 10; i++) {
@@ -106,17 +112,24 @@ void kernel_main(boot_info_t *boot_info) {
     tty_init(&tty0);
     KERNEL_INIT_P("TTY - Teletypewriter 0");
 
+    KERNEL_INIT_P("Shell");
+
+    vga_clear();
+
     if (shell_init(&shell, &tty0) < 0)
         panic("Shell initialization failed");
-    KERNEL_INIT_P("Shell");
 
     // thread_t *t01 = thread_spawn(t1, 5, 10, 1);
     // thread_t *t02 = thread_spawn(t2);
 
+    thread_t *t01 = thread_spawn(shell_thread_entry);
+    if (t01 == NULL)
+        panic("Shell thread creation failed");
+
     sched_start();
 
     while (1) {
-        shell_process(&shell);
+        // hlt();
     }
 
     // print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");

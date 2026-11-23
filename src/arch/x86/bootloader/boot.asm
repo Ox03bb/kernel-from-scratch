@@ -26,6 +26,37 @@ mov es, ax
 mov [boot_drive], dl
 mov bx, 0
 mov di, 0
+mov si, disk_address_packet
+read_kernel_dap:
+cmp di, 178
+jae kernel_loaded
+
+mov word [si + 2], 1
+mov word [si + 4], bx
+mov word [si + 6], es
+mov ax, di
+inc ax
+mov word [si + 8], ax
+mov word [si + 10], 0
+
+mov dl, [boot_drive]
+mov ah, 0x42
+int 0x13
+jc chs_load_kernel
+
+add bx, 512
+cmp bx, 0
+jne dap_next_sector
+mov ax, es
+add ax, 0x1000
+mov es, ax
+
+dap_next_sector:
+inc di
+jmp read_kernel_dap
+
+chs_load_kernel:
+mov di, 0
 read_kernel_sector:
 cmp di, 178
 jae kernel_loaded
@@ -106,6 +137,13 @@ PM_main:
     out 0x92, al
 
     JMP CODE_SEG:KERNEL_START_ADDR
+
+disk_address_packet:
+    db 0x10, 0x00
+    dw KERNEL_SECTORS
+    dw 0x0000
+    dw KERNEL_LOAD_SEG
+    dq 0x0000000000000001
 
 boot_drive:
     db 0x00
