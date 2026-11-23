@@ -18,6 +18,7 @@
 #include "driver/tty.h"
 
 #include "fs.h"
+#include "shell/shell.h"
 
 #include "mm/pmm.h"
 #include "mm/vmm.h"
@@ -37,6 +38,8 @@ uint8_t pmm_bitmap[BITMAP_SIZE];
 heap_t k_heap;
 
 scheduler_t *sched;
+
+static shell_context_t shell;
 
 extern uintptr_t kernel_start_addr;
 extern uintptr_t kernel_end_addr;
@@ -103,12 +106,17 @@ void kernel_main(boot_info_t *boot_info) {
     tty_init(&tty0);
     KERNEL_INIT_P("TTY - Teletypewriter 0");
 
-    thread_t *t01 = thread_spawn(t1, 5, 10, 1);
-    thread_t *t02 = thread_spawn(t2);
+    if (shell_init(&shell, &tty0) < 0)
+        panic("Shell initialization failed");
+    KERNEL_INIT_P("Shell");
+
+    // thread_t *t01 = thread_spawn(t1, 5, 10, 1);
+    // thread_t *t02 = thread_spawn(t2);
 
     sched_start();
 
     while (1) {
+        shell_process(&shell);
     }
 
     // print("[\033[02:00mready\033[0m] Kernel initialized successfully!\n");
