@@ -13,8 +13,7 @@ typedef struct shell_command {
 } shell_command_t;
 
 void shell_command_registry_init(void);
-int shell_command_register(const char *name, const char *description,
-                           shell_command_fn handler);
+int shell_command_register(const char *name, const char *description, shell_command_fn handler);
 int shell_command_execute(shell_context_t *context, int argc, char *argv[]);
 
 #endif
