@@ -18,15 +18,18 @@ void ctx_init(thread_t *thread) {
     if (ctx == NULL)
         return;
 
-    *ctx = (interrupt_frame_t){
-        .registers = {
-            .edi = 0, .esi = 0, .ebp = 0,
-            .esp = (uint32_t)stack_top,
-            .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
-        .vector = 0,
-        .eip = (uint32_t)thread_idle,
-        .cs = 0x08,
-        .eflags = 0x202};
+    *ctx = (interrupt_frame_t){.registers = {.edi = 0,
+                                             .esi = 0,
+                                             .ebp = 0,
+                                             .esp = (uint32_t)stack_top,
+                                             .ebx = 0,
+                                             .edx = 0,
+                                             .ecx = 0,
+                                             .eax = 0},
+                               .vector = 0,
+                               .eip = (uint32_t)thread_idle,
+                               .cs = 0x08,
+                               .eflags = 0x202};
     thread->saved_frame = ctx;
     thread->saved_esp = (uint32_t)ctx;
 }

@@ -11,12 +11,9 @@ void vmm_page_fault_handler() {
     char *err;
 
     if (fault_addr == 0x0) {
-    err = "Core Dump: NULL pointer dereference";
+        err = "Core Dump: NULL pointer dereference";
     } else {
-    err = formatter(
-        "Page Fault: invalid memory access at virtual address 0x%08x",
-        fault_addr
-    );
+        err = formatter("Page Fault: invalid memory access at virtual address 0x%08x", fault_addr);
     }
 
     panic(err);

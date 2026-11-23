@@ -32,13 +32,14 @@ An educational kernel built completely from scratch to explore low-level systems
 │   ├── driver/
 │   ├── interrupt/
 │   ├── mm/
-│   ├── task/
+│   ├── sched/
 │   └── utils/
 ├── scripts/
 │   └── requirements.sh
 ├── src/
 │   ├── driver/
 │   ├── kernel/
+│   │   └── sched/
 │   ├── arch/
 │   │   └── x86/
 │   │       ├── bootloader/
@@ -46,7 +47,6 @@ An educational kernel built completely from scratch to explore low-level systems
 │   │       ├── interrupt/
 │   │       ├── kernel/
 │   │       ├── mm/
-│   │       ├── task/
 │   │       └── utils/
 │   ├── libs/
 │   └── utils/

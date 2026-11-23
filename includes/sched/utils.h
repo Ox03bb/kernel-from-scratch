@@ -1,6 +1,6 @@
 
-#ifndef task_utils_H
-#define task_utils_H
+#ifndef sched_utils_H
+#define sched_utils_H
 
 #include "sched.h"
 #include <stdbool.h>

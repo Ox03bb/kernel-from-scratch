@@ -1,5 +1,5 @@
 #include "thread.h"
-#include "task/utils.h"
+#include "sched/utils.h"
 
 #include "stdio.h"
 #include "utils/utils.h"
@@ -7,8 +7,8 @@
 #include "heap.h"
 
 #include "context.h"
-#include "sched.h"
 #include "panic.h"
+#include "sched.h"
 #include <stdarg.h>
 
 uint32_t last_id = 1;
@@ -26,8 +26,7 @@ void thread_bootstrap(void) {
         ((void (*)(uintptr_t))current->entry)(current->args[0]);
         break;
     case 2:
-        ((void (*)(uintptr_t, uintptr_t))current->entry)(current->args[0],
-                                                         current->args[1]);
+        ((void (*)(uintptr_t, uintptr_t))current->entry)(current->args[0], current->args[1]);
         break;
     case 3:
         ((void (*)(uintptr_t, uintptr_t, uintptr_t))current->entry)(
@@ -43,21 +42,21 @@ void thread_bootstrap(void) {
             current->args[4]);
         break;
     case 6:
-        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t))current
-             ->entry)(current->args[0], current->args[1], current->args[2],
-                      current->args[3], current->args[4], current->args[5]);
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
+                   uintptr_t))current->entry)(current->args[0], current->args[1], current->args[2],
+                                              current->args[3], current->args[4], current->args[5]);
         break;
     case 7:
         ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
-                   uintptr_t))current->entry)(
-            current->args[0], current->args[1], current->args[2], current->args[3],
-            current->args[4], current->args[5], current->args[6]);
+                   uintptr_t))current->entry)(current->args[0], current->args[1], current->args[2],
+                                              current->args[3], current->args[4], current->args[5],
+                                              current->args[6]);
         break;
     case 8:
-        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
-                   uintptr_t, uintptr_t))current->entry)(
-            current->args[0], current->args[1], current->args[2], current->args[3],
-            current->args[4], current->args[5], current->args[6], current->args[7]);
+        ((void (*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
+                   uintptr_t))current->entry)(current->args[0], current->args[1], current->args[2],
+                                              current->args[3], current->args[4], current->args[5],
+                                              current->args[6], current->args[7]);
         break;
     default:
         panic("Thread argument count exceeds supported limit");
@@ -200,14 +199,19 @@ thread_t *thread_create(const char *name, void (*entry)(void), size_t stack_size
     /* This frame is disjoint from the thread stack. */
     uintptr_t stack_top = ((uintptr_t)t->stack + t->stack_size) & ~(uintptr_t)0xF;
 
-    *ctx = (interrupt_frame_t){
-        .registers =
-            {.edi = 0, .esi = 0, .ebp = 0, .esp = (uint32_t)stack_top, .ebx = 0, .edx = 0, .ecx = 0, .eax = 0},
+    *ctx = (interrupt_frame_t){.registers = {.edi = 0,
+                                             .esi = 0,
+                                             .ebp = 0,
+                                             .esp = (uint32_t)stack_top,
+                                             .ebx = 0,
+                                             .edx = 0,
+                                             .ecx = 0,
+                                             .eax = 0},
 
-        .vector = 0,
-        .eflags = 0x202,
-        .eip = (uint32_t)thread_bootstrap,
-        .cs = 0x08};
+                               .vector = 0,
+                               .eflags = 0x202,
+                               .eip = (uint32_t)thread_bootstrap,
+                               .cs = 0x08};
     t->saved_frame = ctx;
     t->saved_esp = (uintptr_t)ctx;
 

@@ -1,6 +1,6 @@
 #include "sched.h"
 #include "heap.h"
-#include "task/utils.h"
+#include "sched/utils.h"
 #include "thread.h"
 #include "utils/utils.h"
 

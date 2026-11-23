@@ -1,4 +1,4 @@
-#include "task/utils.h"
+#include "sched/utils.h"
 
 bool sq_is_empty(const scheduler_t *scheduler) {
     return scheduler == NULL || scheduler->ready_queue == NULL;
