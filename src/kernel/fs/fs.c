@@ -10,6 +10,8 @@ static fs_node_t *fs_root;
 int fs_create_default_structure(void) {
     if (fs_mkdir("/bin") < 0)
         return -1;
+    if (fs_mkdir("/boot") < 0)
+        return -1;
     if (fs_mkdir("/dev") < 0)
         return -1;
     if (fs_mkdir("/etc") < 0)
@@ -17,6 +19,8 @@ int fs_create_default_structure(void) {
     if (fs_mkdir("/home") < 0)
         return -1;
     if (fs_mkdir("/home/root") < 0)
+        return -1;
+    if (fs_mkdir("/home/ali") < 0)
         return -1;
     if (fs_mkdir("/proc") < 0)
         return -1;

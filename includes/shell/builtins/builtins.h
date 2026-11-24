@@ -16,6 +16,7 @@ int shell_builtin_touch(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_rm(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_cat(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_tree(shell_context_t *context, int argc, char *argv[]);
+int shell_builtin_ed(shell_context_t *context, int argc, char *argv[]);
 
 void shell_register_builtins(void);
 

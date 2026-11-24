@@ -17,4 +17,5 @@ void shell_register_builtins(void) {
     shell_command_register("rm", "Remove a file or empty directory", shell_builtin_rm);
     shell_command_register("cat", "Print a file", shell_builtin_cat);
     shell_command_register("tree", "Recursively list directory contents", shell_builtin_tree);
+    shell_command_register("ed", "Edit a file", shell_builtin_ed);
 }
