@@ -28,7 +28,7 @@ mov bx, 0
 mov di, 0
 mov si, disk_address_packet
 read_kernel_dap:
-cmp di, 178
+cmp di, KERNEL_SECTORS
 jae kernel_loaded
 
 mov word [si + 2], 1
@@ -58,7 +58,7 @@ jmp read_kernel_dap
 chs_load_kernel:
 mov di, 0
 read_kernel_sector:
-cmp di, 178
+cmp di, KERNEL_SECTORS
 jae kernel_loaded
 
 mov ax, di
