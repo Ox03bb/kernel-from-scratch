@@ -15,7 +15,8 @@ int strcmp(const char *str1, const char *str2);
 char *int2str(int num); // convert integer to string
 char *uint2str(uint32_t number, uint8_t base, bool uppercase);
 
-char *strchr(const char *str, int c); // find first occurrence of character c in string str
+char *strchr(const char *str, int c);  // find first occurrence of character c in string str
+char *strrchr(const char *str, int c); // find last occurrence of character c in string str
 
 char *strstr(const char *str,
              const char *substr); // find first occurrence of substring substr in string str

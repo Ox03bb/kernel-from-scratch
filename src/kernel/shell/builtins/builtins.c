@@ -18,4 +18,8 @@ void shell_register_builtins(void) {
     shell_command_register("cat", "Print a file", shell_builtin_cat);
     shell_command_register("tree", "Recursively list directory contents", shell_builtin_tree);
     shell_command_register("ed", "Edit a file", shell_builtin_ed);
+    shell_command_register("cp", "Copy a file", shell_builtin_cp);
+    shell_command_register("mv", "Move a file", shell_builtin_mv);
+    shell_command_register("sleep", "Wait for a few seconds", shell_builtin_sleep);
+    shell_command_register("info", "Show system information", shell_builtin_info);
 }

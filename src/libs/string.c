@@ -113,6 +113,21 @@ char *strchr(const char *str, int c) {
     return (c == '\0') ? (char *)str : NULL;
 }
 
+/* Find the last occurrence of character c in string str. */
+char *strrchr(const char *str, int c) {
+    const char *last = NULL;
+    char match = (char)c;
+
+    while (*str != '\0') {
+        if (*str == match) {
+            last = str;
+        }
+        str++;
+    }
+
+    return (char *)last;
+}
+
 char *strstr(const char *str, const char *substr) {
     if (!*substr) {
         return (char *)str;
