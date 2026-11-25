@@ -208,7 +208,7 @@ int shell_init(shell_context_t *context, tty_t *tty) {
     context->tty = tty;
     tty_set_history_callbacks(context->tty, context,
                               shell_history_count_cb, shell_history_at_cb);
-    copy_string(context->name, "Ali", sizeof(context->name));
+    copy_string(context->name, "root", sizeof(context->name));
     copy_string(context->user, "root", sizeof(context->user));
     context->currentDir[0] = '/';
     context->currentDir[1] = '\0';
