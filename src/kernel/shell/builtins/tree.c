@@ -5,8 +5,7 @@
 
 #define TREE_MAX_DEPTH 16
 
-static void tree_print_node(shell_context_t *context, fs_node_t *node, int depth,
-                            bool is_last) {
+static void tree_print_node(shell_context_t *context, fs_node_t *node, int depth, bool is_last) {
     (void)context;
     (void)is_last;
 

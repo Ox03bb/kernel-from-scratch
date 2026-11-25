@@ -25,9 +25,7 @@ static void rtc_wait_not_updating(void) {
 }
 
 /* Convert a packed BCD byte to binary. */
-static uint8_t bcd_to_bin(uint8_t bcd) {
-    return (uint8_t)((bcd & 0x0F) + ((bcd >> 4) * 10));
-}
+static uint8_t bcd_to_bin(uint8_t bcd) { return (uint8_t)((bcd & 0x0F) + ((bcd >> 4) * 10)); }
 
 /* -------------------------------------------------------------------------- */
 /* Public                                                                     */
@@ -57,20 +55,20 @@ int rtc_get_datetime(datetime_t *dt) {
 
     uint8_t seconds = cmos_read(RTC_REG_SECONDS);
     uint8_t minutes = cmos_read(RTC_REG_MINUTES);
-    uint8_t hours   = cmos_read(RTC_REG_HOURS);
-    uint8_t day     = cmos_read(RTC_REG_DAY);
-    uint8_t month   = cmos_read(RTC_REG_MONTH);
-    uint8_t year    = cmos_read(RTC_REG_YEAR);
+    uint8_t hours = cmos_read(RTC_REG_HOURS);
+    uint8_t day = cmos_read(RTC_REG_DAY);
+    uint8_t month = cmos_read(RTC_REG_MONTH);
+    uint8_t year = cmos_read(RTC_REG_YEAR);
 
     status_b = cmos_read(RTC_REG_STATUS_B);
     int bcd = (status_b & RTC_STATUS_B_BIN) == 0;
 
     dt->second = bcd ? bcd_to_bin(seconds) : seconds;
     dt->minute = bcd ? bcd_to_bin(minutes) : minutes;
-    dt->hour   = bcd ? bcd_to_bin(hours)   : hours;
-    dt->day    = bcd ? bcd_to_bin(day)     : day;
-    dt->month  = bcd ? bcd_to_bin(month)   : month;
-    dt->year   = 2000u + (bcd ? bcd_to_bin(year) : year);
+    dt->hour = bcd ? bcd_to_bin(hours) : hours;
+    dt->day = bcd ? bcd_to_bin(day) : day;
+    dt->month = bcd ? bcd_to_bin(month) : month;
+    dt->year = 2000u + (bcd ? bcd_to_bin(year) : year);
 
     return 0;
 }

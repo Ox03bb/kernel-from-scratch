@@ -412,8 +412,8 @@ static void tty_history_next(tty_t *tty) {
     }
 }
 
-void tty_set_history_callbacks(tty_t *tty, void *context,
-                               tty_history_count_fn count_fn, tty_history_at_fn at_fn) {
+void tty_set_history_callbacks(tty_t *tty, void *context, tty_history_count_fn count_fn,
+                               tty_history_at_fn at_fn) {
     if (tty == NULL)
         return;
 

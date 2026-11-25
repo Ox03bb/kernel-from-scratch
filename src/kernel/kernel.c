@@ -122,7 +122,6 @@ void kernel_main(boot_info_t *boot_info) {
     if (shell_init(&shell, &tty0) < 0)
         panic("Shell initialization failed");
 
-
     rtc_init();
     statusbar_set_username(shell.user);
     statusbar_render();

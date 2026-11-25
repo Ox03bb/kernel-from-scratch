@@ -206,8 +206,7 @@ int shell_init(shell_context_t *context, tty_t *tty) {
         ((volatile char *)context)[i] = 0;
 
     context->tty = tty;
-    tty_set_history_callbacks(context->tty, context,
-                              shell_history_count_cb, shell_history_at_cb);
+    tty_set_history_callbacks(context->tty, context, shell_history_count_cb, shell_history_at_cb);
     copy_string(context->name, "root", sizeof(context->name));
     copy_string(context->user, "root", sizeof(context->user));
     context->currentDir[0] = '/';
@@ -235,9 +234,7 @@ void shell_prompt(shell_context_t *context) {
 
     printf("\n\033[0m[ \033[02:00m%s\033[0m ]\n"
            "\033[11:00m%s\033[14:00m@kernel-fs\033[0m %s",
-           context->currentDir,
-           context->name,
-           context->config.prompt);
+           context->currentDir, context->name, context->config.prompt);
 }
 
 void shell_process(shell_context_t *context) {
