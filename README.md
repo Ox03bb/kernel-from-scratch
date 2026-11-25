@@ -7,6 +7,11 @@
 
 An educational x86 operating system kernel built from scratch using C and Assembly. The project explores operating system internals, low-level programming, memory management, interrupt handling, multitasking, and hardware interaction.
 
+<p align="center">
+  <video src="docs/assets/kernel.mp4" controls width="70%">
+    <a href="docs/assets/kernel.mp4">Watch the kernel demo</a>
+  </video>
+</p>
 
 ## Overview
 
@@ -272,4 +277,3 @@ Planned directions for future development include:
 - Implementing a framebuffer graphics subsystem.
 - Exploring software-based 3D rendering.
 - Improving kernel diagnostics and debugging tools.
-
