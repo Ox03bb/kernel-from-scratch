@@ -21,6 +21,9 @@
 #include "fs.h"
 #include "shell/shell.h"
 
+#include "driver/rtc.h"
+#include "statusbar.h"
+
 #include "mm/pmm.h"
 #include "mm/vmm.h"
 
@@ -118,6 +121,11 @@ void kernel_main(boot_info_t *boot_info) {
 
     if (shell_init(&shell, &tty0) < 0)
         panic("Shell initialization failed");
+
+    rtc_init();
+    statusbar_set_username(shell.user);
+    statusbar_render();
+    statusbar_run();
 
     // thread_t *t01 = thread_spawn(t1, 5, 10, 1);
     // thread_t *t02 = thread_spawn(t2);

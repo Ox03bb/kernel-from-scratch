@@ -3,6 +3,7 @@
 
 #include "driver/keyboard/event_queue.h"
 #include "driver/keyboard/keyboard_keys.h"
+#include "statusbar.h"
 
 #include "mm/heap.h"
 #include "stdio.h"
@@ -492,6 +493,9 @@ int shell_builtin_ed(shell_context_t *context, int argc, char *argv[]) {
     ed_init(&editor, resolved);
     ed_load(&editor, resolved);
 
+    /* Disable the status bar so it does not overwrite the editor screen. */
+    statusbar_pause();
+
     vga_clear();
     vga_set_color(DEFUALT_F, DEFUALT_B);
     vga_cursor_enable();
@@ -512,6 +516,9 @@ int shell_builtin_ed(shell_context_t *context, int argc, char *argv[]) {
     vga_set_color(DEFUALT_F, DEFUALT_B);
     vga_clear();
     vga_set_cursor(0, 0);
+
+    /* Re-enable the status bar now that the editor is done. */
+    statusbar_resume();
 
     return 0;
 }

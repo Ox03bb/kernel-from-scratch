@@ -71,7 +71,7 @@ void set_scaning(bool state) { set_scanning(state); }
 
 void select_scancode_set(uint8_t set) {
     if (set > 3) {
-        printf("\033[01:00mERROR:\033[0m Invalid scancode set %u.\n", set);
+        printf("\033[01:00mERROR:\033[0m Invalid scancode set %d.\n", set);
         return;
     }
 
