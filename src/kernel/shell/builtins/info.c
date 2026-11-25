@@ -4,15 +4,18 @@
 #include "timer.h"
 
 int shell_builtin_info(shell_context_t *context, int argc, char *argv[]) {
-    char buffer[32];
+    // hard coded information for now, can be improved later
 
+    (void)context;
     (void)argc;
     (void)argv;
 
-    shell_builtin_write(context, "kernel-from-scratch\n");
-    shell_builtin_write(context, "  uptime: ");
-    snprintf(buffer, sizeof(buffer), "%u seconds\n", timer_get_seconds());
-    shell_builtin_write(context, buffer);
+    printf("kernel-from-scratch\n");
+    printf("  uptime: %d seconds\n", timer_get_seconds());
+    printf("  architecture: x86\n");
+    printf("  kernel version: 0.1.0\n");
+    printf("  C standard: C99\n");
+    printf("  Memory: 4 GB\n");
 
     return 0;
 }
