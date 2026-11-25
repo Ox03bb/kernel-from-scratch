@@ -50,6 +50,7 @@ void tty_init(tty_t *tty) {
     tty->history_has_live = false;
     tty->history_live[0] = '\0';
     tty->history_line_start = 0;
+    tty->interrupt_requested = false;
 
     console_init(tty->console);
 }
@@ -210,8 +211,10 @@ void tty_handle_event(tty_t *tty, const input_event_t *event) {
             /*
              * Ctrl+C
              *
-             * Process/signal handling can be added later.
+             * Request an interrupt so a blocking command (e.g. sleep)
+             * can abort early.
              */
+            tty->interrupt_requested = true;
             return;
 
         default:

@@ -59,6 +59,9 @@ typedef struct tty_t {
     char                        history_live[TTY_HISTORY_LINE_SIZE]; /* snapshot of the live line */
     bool                        history_has_live;   /* true once a live snapshot exists */
     uint8_t                     history_line_start; /* VGA column where the input line begins */
+
+    /* Interrupt (Ctrl+C) flag. */
+    bool interrupt_requested;
 } tty_t;
 
 void tty_init(tty_t *tty);
