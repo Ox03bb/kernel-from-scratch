@@ -24,11 +24,79 @@ mov ds, ax
 mov ax, KERNEL_LOAD_SEG
 mov es, ax
 mov [boot_drive], dl
+mov bx, 0
+mov di, 0
 mov si, disk_address_packet
-mov ah, 0x42 ; Extended read sectors from disk
-int 0x13
+read_kernel_dap:
+cmp di, KERNEL_SECTORS
+jae kernel_loaded
 
+mov word [si + 2], 1
+mov word [si + 4], bx
+mov word [si + 6], es
+mov ax, di
+inc ax
+mov word [si + 8], ax
+mov word [si + 10], 0
+
+mov dl, [boot_drive]
+mov ah, 0x42
+int 0x13
+jc chs_load_kernel
+
+add bx, 512
+cmp bx, 0
+jne dap_next_sector
+mov ax, es
+add ax, 0x1000
+mov es, ax
+
+dap_next_sector:
+inc di
+jmp read_kernel_dap
+
+chs_load_kernel:
+mov di, 0
+read_kernel_sector:
+cmp di, KERNEL_SECTORS
+jae kernel_loaded
+
+mov ax, di
+inc ax
+xor dx, dx
+mov cx, 63
+div cx
+
+push dx
+
+xor dx, dx
+mov cx, 16
+div cx
+
+mov dh, dl
+mov ch, al
+pop dx
+mov cl, dl
+inc cl
+
+mov dl, [boot_drive]
+mov ah, 2
+mov al, 1
+int 0x13
 jc disk_read_error
+
+add bx, 512
+cmp bx, 0
+jne next_kernel_sector
+mov ax, es
+add ax, 0x1000
+mov es, ax
+
+next_kernel_sector:
+inc di
+jmp read_kernel_sector
+
+kernel_loaded:
 
 %include "src/arch/x86/mm/physical/pmm.asm"
 
@@ -71,11 +139,11 @@ PM_main:
     JMP CODE_SEG:KERNEL_START_ADDR
 
 disk_address_packet:
-    db 0x10, 0x00              ; packet size, reserved
-    dw KERNEL_SECTORS          ; sectors to read
-    dw 0x0000                   ; transfer offset
-    dw KERNEL_LOAD_SEG          ; transfer segment
-    dq 0x0000000000000001      ; start at LBA 1 (sector 2)
+    db 0x10, 0x00
+    dw KERNEL_SECTORS
+    dw 0x0000
+    dw KERNEL_LOAD_SEG
+    dq 0x0000000000000001
 
 boot_drive:
     db 0x00
