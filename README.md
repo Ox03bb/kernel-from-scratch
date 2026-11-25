@@ -8,9 +8,7 @@
 An educational x86 operating system kernel built from scratch using C and Assembly. The project explores operating system internals, low-level programming, memory management, interrupt handling, multitasking, and hardware interaction.
 
 <p align="center">
-  <video src="docs/assets/kernel.mp4" controls width="70%">
-    <a href="docs/assets/kernel.mp4">Watch the kernel demo</a>
-  </video>
+  <img src="docs/assets/kernel.gif" alt="Kernel From Scratch demo" width="70%">
 </p>
 
 ## Overview
