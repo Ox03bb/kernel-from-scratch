@@ -17,8 +17,10 @@ int shell_builtin_help(shell_context_t *context, int argc, char *argv[]) {
     shell_builtin_write(context, "  mkdir    Create a directory\n");
     shell_builtin_write(context, "  mv       Move a file\n");
     shell_builtin_write(context, "  pwd      Print working directory\n");
+    shell_builtin_write(context, "  reboot   Reboot the computer\n");
     shell_builtin_write(context, "  rm       Remove a file or empty directory\n");
     shell_builtin_write(context, "  sleep    Wait for a few seconds\n");
+    shell_builtin_write(context, "  shutdown Shut down the computer\n");
     shell_builtin_write(context, "  touch    Create a file\n");
     shell_builtin_write(context, "  tree     Recursively list directory contents\n");
     return 0;

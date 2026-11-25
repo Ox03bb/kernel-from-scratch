@@ -22,6 +22,8 @@ int shell_builtin_cp(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_mv(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_sleep(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_info(shell_context_t *context, int argc, char *argv[]);
+int shell_builtin_reboot(shell_context_t *context, int argc, char *argv[]);
+int shell_builtin_shutdown(shell_context_t *context, int argc, char *argv[]);
 
 void shell_register_builtins(void);
 

@@ -23,4 +23,6 @@ void shell_register_builtins(void) {
     shell_command_register("mv", "Move a file", shell_builtin_mv);
     shell_command_register("sleep", "Wait for a few seconds", shell_builtin_sleep);
     shell_command_register("info", "Show system information", shell_builtin_info);
+    shell_command_register("reboot", "Reboot the computer", shell_builtin_reboot);
+    shell_command_register("shutdown", "Shut down the computer", shell_builtin_shutdown);
 }
