@@ -10,6 +10,9 @@ void tty_write(tty_t *tty, const char *str);
 void tty_read(tty_t *tty, char *buf, size_t len);
 void tty_clear(tty_t *tty);
 
+static void tty_history_previous(tty_t *tty);
+static void tty_history_next(tty_t *tty);
+
 static const tty_interface_t tty_default_interface = {
     .putc = tty_putc,
     .write = tty_write,
@@ -39,6 +42,14 @@ void tty_init(tty_t *tty) {
     tty->method = tty_default_interface;
 
     tty->console = &vga_console;
+
+    tty->history_context = NULL;
+    tty->history_count = NULL;
+    tty->history_at = NULL;
+    tty->history_index = -1;
+    tty->history_has_live = false;
+    tty->history_live[0] = '\0';
+    tty->history_line_start = 0;
 
     console_init(tty->console);
 }
@@ -278,6 +289,14 @@ void tty_handle_event(tty_t *tty, const input_event_t *event) {
 
         return;
 
+    case KEY_UP:
+        tty_history_previous(tty);
+        return;
+
+    case KEY_DOWN:
+        tty_history_next(tty);
+        return;
+
     default:
         break;
     }
@@ -321,4 +340,126 @@ void tty_process_events(tty_t *tty) {
     while (input_queue_pop(&event)) {
         tty_handle_event(tty, &event);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Command history browsing (up/down arrow)                                   */
+/* -------------------------------------------------------------------------- */
+
+static void tty_history_previous(tty_t *tty) {
+    int count;
+
+    if (tty == NULL || tty->history_count == NULL || tty->history_at == NULL)
+        return;
+
+    count = tty->history_count(tty->history_context);
+
+    /* Snapshot the live line the first time the user starts browsing. */
+    if (!tty->history_has_live) {
+        size_t i;
+
+        for (i = 0; i < (size_t)tty->buffer_index && i < sizeof(tty->history_live) - 1; i++)
+            tty->history_live[i] = tty->buffer[i];
+        tty->history_live[i] = '\0';
+        tty->history_has_live = true;
+        tty->history_index = count;
+
+        /* Remember the screen column where the input line text begins so a
+         * recalled line can be redrawn even if the cursor was mid-line. */
+        {
+            uint8_t cursor_x = vga_get_cursor_x();
+            tty->history_line_start = cursor_x >= (uint8_t)tty->cursor_index
+                                          ? (uint8_t)(cursor_x - (uint8_t)tty->cursor_index)
+                                          : 0;
+        }
+    }
+
+    /* Move to the previous entry (index 0 is the oldest; stay there). */
+    if (tty->history_index > 0) {
+        const char *entry;
+
+        tty->history_index--;
+        entry = tty->history_at(tty->history_context, tty->history_index);
+        if (entry != NULL)
+            tty_replace_line(tty, entry);
+    }
+}
+
+static void tty_history_next(tty_t *tty) {
+    int count;
+
+    if (tty == NULL || !tty->history_has_live)
+        return;
+
+    count = (tty->history_count != NULL) ? tty->history_count(tty->history_context) : 0;
+
+    if (tty->history_index < count)
+        tty->history_index++;
+
+    if (tty->history_index == count) {
+        /* Back at the live line: restore the snapshot and stop browsing. */
+        tty_replace_line(tty, tty->history_live);
+        tty->history_has_live = false;
+        tty->history_index = -1;
+    } else {
+        const char *entry = tty->history_at(tty->history_context, tty->history_index);
+
+        if (entry != NULL)
+            tty_replace_line(tty, entry);
+    }
+}
+
+void tty_set_history_callbacks(tty_t *tty, void *context,
+                               tty_history_count_fn count_fn, tty_history_at_fn at_fn) {
+    if (tty == NULL)
+        return;
+
+    tty->history_context = context;
+    tty->history_count = count_fn;
+    tty->history_at = at_fn;
+    tty->history_index = -1;
+    tty->history_has_live = false;
+    tty->history_live[0] = '\0';
+    tty->history_line_start = 0;
+}
+
+void tty_replace_line(tty_t *tty, const char *text) {
+    size_t len;
+    size_t i;
+    uint8_t x;
+    uint8_t y;
+
+    if (tty == NULL || text == NULL || tty->console == NULL)
+        return;
+
+    len = 0;
+    while (text[len] != '\0' && len < TTY_BUFFER_SIZE - 1)
+        len++;
+
+    /* Move the VGA cursor to the start of the input line, then echo. */
+    {
+        uint8_t y = vga_get_cursor_y();
+        vga_set_cursor(tty->history_line_start, y);
+    }
+
+    /* Clear the remainder of the screen line so stale characters vanish. */
+    x = vga_get_cursor_x();
+    y = vga_get_cursor_y();
+    vga_clear_region(x, y, (uint8_t)(VGA_WIDTH - x), 1, DEFUALT_B | DEFUALT_F);
+
+    /* Echo the new text; vga_print_char advances the VGA cursor for us. */
+    if (tty->echo && tty->console->method.write != NULL) {
+        for (i = 0; i < len; i++) {
+            char ch[2] = {text[i], '\0'};
+            tty->console->method.write(tty->console, ch);
+        }
+    }
+
+    /* Update tty state to match the replaced line; cursor lands at the end. */
+    for (i = 0; i < len; i++)
+        tty->buffer[i] = text[i];
+    tty->buffer[len] = '\0';
+    tty->buffer_index = (int)len;
+    tty->cursor_index = (int)len;
+    tty->input_length = (int)len;
 }

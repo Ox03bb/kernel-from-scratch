@@ -7,6 +7,7 @@ void shell_builtin_write(shell_context_t *context, const char *text) {
 
 void shell_register_builtins(void) {
     shell_command_register("help", "Show built-in commands", shell_builtin_help);
+    shell_command_register("history", "Show command history", shell_builtin_history);
     shell_command_register("clear", "Clear the screen", shell_builtin_clear);
     shell_command_register("echo", "Print text", shell_builtin_echo);
     shell_command_register("pwd", "Print working directory", shell_builtin_pwd);

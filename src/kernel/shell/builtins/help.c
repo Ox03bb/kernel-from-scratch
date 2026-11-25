@@ -11,6 +11,7 @@ int shell_builtin_help(shell_context_t *context, int argc, char *argv[]) {
     shell_builtin_write(context, "  echo     Print text\n");
     shell_builtin_write(context, "  ed       Edit a file\n");
     shell_builtin_write(context, "  help     Show this list\n");
+    shell_builtin_write(context, "  history  Show command history\n");
     shell_builtin_write(context, "  info     Show system information\n");
     shell_builtin_write(context, "  ls       List directory contents\n");
     shell_builtin_write(context, "  mkdir    Create a directory\n");

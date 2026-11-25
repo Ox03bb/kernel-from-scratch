@@ -67,6 +67,24 @@ void shell_history_add(shell_context_t *context, const char *line) {
     copy_string(context->history[index], entry, sizeof(context->history[index]));
 }
 
+static int shell_history_count_cb(void *context) {
+    shell_context_t *ctx = (shell_context_t *)context;
+
+    if (ctx == NULL)
+        return 0;
+
+    return (int)ctx->history_count;
+}
+
+static const char *shell_history_at_cb(void *context, int index) {
+    shell_context_t *ctx = (shell_context_t *)context;
+
+    if (ctx == NULL || index < 0 || (size_t)index >= ctx->history_count)
+        return NULL;
+
+    return ctx->history[index];
+}
+
 const char *shell_env_get(const shell_context_t *context, const char *key) {
     if (context == NULL || key == NULL)
         return NULL;
@@ -188,6 +206,8 @@ int shell_init(shell_context_t *context, tty_t *tty) {
         ((volatile char *)context)[i] = 0;
 
     context->tty = tty;
+    tty_set_history_callbacks(context->tty, context,
+                              shell_history_count_cb, shell_history_at_cb);
     copy_string(context->name, "Ali", sizeof(context->name));
     copy_string(context->user, "root", sizeof(context->user));
     context->currentDir[0] = '/';

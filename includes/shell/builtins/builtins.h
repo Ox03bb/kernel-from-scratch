@@ -6,6 +6,7 @@
 void shell_builtin_write(shell_context_t *context, const char *text);
 
 int shell_builtin_help(shell_context_t *context, int argc, char *argv[]);
+int shell_builtin_history(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_clear(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_echo(shell_context_t *context, int argc, char *argv[]);
 int shell_builtin_pwd(shell_context_t *context, int argc, char *argv[]);
