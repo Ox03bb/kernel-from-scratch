@@ -15,6 +15,8 @@
 
 static char statusbar_username[64] = "user";
 
+static bool statusbar_enabled = true;
+
 _Noreturn static void statusbar_thread_entry(void) {
     while (1) {
         statusbar_render();
@@ -36,7 +38,14 @@ void statusbar_set_username(const char *username) {
     statusbar_username[i] = '\0';
 }
 
+void statusbar_pause(void) { statusbar_enabled = false; }
+
+void statusbar_resume(void) { statusbar_enabled = true; }
+
 void statusbar_render(void) {
+    if (!statusbar_enabled)
+        return;
+
     datetime_t now;
     char time_str[9];  /* "hh:mm:ss\0"  */
     char date_str[11]; /* "dd/mm/yyyy\0" */
